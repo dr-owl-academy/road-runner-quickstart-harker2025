@@ -87,7 +87,7 @@ public class NathanIntake extends OpMode {
 
 
     /*
-     * Code to run ONCE when the driver hits INITIATE
+     * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
