@@ -82,6 +82,8 @@ public class StarterBotTeleopMecanums extends OpMode {
     private DcMotorEx launcher = null;
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
+    private DcMotor intake = null;
+
 
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -135,6 +137,8 @@ public class StarterBotTeleopMecanums extends OpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
 
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
@@ -156,6 +160,7 @@ public class StarterBotTeleopMecanums extends OpMode {
          * through any wiring.
          */
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         /*
          * Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to
@@ -226,6 +231,17 @@ public class StarterBotTeleopMecanums extends OpMode {
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
+        }
+
+        // intake test
+        if (gamepad2.leftBumperWasPressed()) {
+            intake.setPower(1);
+        } else if (gamepad2.leftBumperWasReleased()) {
+            intake.setPower(0);
+        }
+
+        if (gamepad2.xWasPressed()) {
+            intake.setPower(-1);
         }
 
         /*
