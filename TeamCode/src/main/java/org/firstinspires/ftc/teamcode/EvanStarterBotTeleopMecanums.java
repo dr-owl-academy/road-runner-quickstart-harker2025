@@ -58,12 +58,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
-@TeleOp(name = "DerrensStarterBotTeleopMecanums", group = "StarterBot")
+@TeleOp(name = "StarterBotTeleopMecanums", group = "StarterBot")
 //@Disabled
-public class DerrensStarterBotTeleopMecanums extends OpMode {
-    final double FEED_TIME_SECONDS = 0.40; //The feeder servos run this long when a shot is requested.
+public class EvanStarterBotTeleopMecanums extends OpMode {
+    final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    final double FULL_SPEED = -5000.0;
+    final double FULL_SPEED = 1.0;
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -71,7 +71,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 3000;
+    final double LAUNCHER_TARGET_VELOCITY = 2500;
     final double LAUNCHER_MIN_VELOCITY = 1075;
 
     // Declare OpMode members.
@@ -82,7 +82,9 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     private DcMotorEx launcher = null;
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
+
     private DcMotor intake = null;
+
     ElapsedTime feederTimer = new ElapsedTime();
 
     /*
@@ -135,7 +137,8 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
-        intake = hardwareMap.get(DcMotor.class, "intake");
+        intake = hardwareMap.get(DcMotor.class,"intake");
+
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
          * because the axles point in opposite directions. Pushing the left stick forward
@@ -180,7 +183,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
          * both work to feed the ball into the robot.
          */
-        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFeeder.setDirection(DcMotorSimple.Direction.FORWARD);
 
         /*
          * Tell the driver that initialization is complete.
@@ -188,7 +191,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("Status", "Initialized");
     }
 
-    /*
+    /*x
      * Code to run REPEATEDLY after the driver hits INIT, but before they hit START
      */
     @Override
@@ -227,15 +230,17 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
         }
-        if(gamepad2.leftBumperWasPressed()) {
+        // intake test
+        if (gamepad2.leftBumperWasPressed()) {
             intake.setPower(1);
-        }else if (gamepad2.leftBumperWasReleased()) {
+        } else if (gamepad2.leftBumperWasReleased()) {
             intake.setPower(0);
         }
 
         if (gamepad2.xWasPressed()) {
             intake.setPower(-1);
         }
+
         /*
          * Now we call our "Launch" function.
          */
@@ -262,12 +267,12 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
          * This ensures all the powers maintain the same ratio,
          * but only if at least one is out of the range [-1, 1]
          */
+        double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
 
-
-        leftFrontPower = (forward + strafe + rotate) / 2.5;
-        rightFrontPower = (forward - strafe - rotate) / 2.5;
-        leftBackPower = (forward - strafe + rotate) / 2.5;
-        rightBackPower = (forward + strafe - rotate) / 2.5;
+        leftFrontPower = (forward + strafe + rotate) / denominator;
+        rightFrontPower = (forward - strafe - rotate) / denominator;
+        leftBackPower = (forward - strafe + rotate) / denominator;
+        rightBackPower = (forward + strafe - rotate) / denominator;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
