@@ -58,9 +58,9 @@ public final class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
+            RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
 
         // drive model parameters
         public double inPerTick = 1;
@@ -410,7 +410,8 @@ public final class MecanumDrive {
             driveCommandWriter.write(new DriveCommandMessage(command));
 
             MecanumKinematics.WheelVelocities<Time> wheelVels = kinematics.inverse(command);
-            double voltage = voltageSensor.getVoltage();
+            double voltage;
+            voltage = voltageSensor.getVoltage();
             final MotorFeedforward feedforward = new MotorFeedforward(PARAMS.kS,
                     PARAMS.kV / PARAMS.inPerTick, PARAMS.kA / PARAMS.inPerTick);
             double leftFrontPower = feedforward.compute(wheelVels.leftFront) / voltage;
