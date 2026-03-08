@@ -106,6 +106,8 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         SPIN_UP,
         LAUNCH,
         LAUNCHING,
+        INTAKE_FORWARD,
+        INTAKE_REVERSE
     }
 
     private LaunchState launchState;
@@ -301,6 +303,18 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
                     leftFeeder.setPower(STOP_SPEED);
                     rightFeeder.setPower(STOP_SPEED);
                 }
+                break;
+            case INTAKE_FORWARD:
+                if (gamepad2.rightBumperWasPressed())
+                    intake.setPower(1);
+                else if (gamepad2.rightBumperWasReleased())
+                    intake.setPower(0);
+                break;
+            case INTAKE_REVERSE:
+                if (gamepad2.xWasPressed())
+                    intake.setPower(-1);
+                else if (gamepad2.xWasReleased())
+                    intake.setPower(0);
                 break;
         }
     }
