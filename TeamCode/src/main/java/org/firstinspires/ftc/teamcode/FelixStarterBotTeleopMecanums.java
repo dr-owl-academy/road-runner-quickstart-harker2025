@@ -202,6 +202,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("right front power", rightFrontPower);
         telemetry.addData("left back power", leftBackPower);
         telemetry.addData("right back power", rightBackPower);
+        telemetry.addData("intake Speed",intake.getPower());
 
         switch (currentLaunchState) {
             case IDLE:
@@ -262,7 +263,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
                     // And we transition back to the IDLE state.
                     currentLaunchState = LaunchState.IDLE;
                     if (gamepad2.right_bumper) {
-                        intake.setPower(STOP_SPEED);
+                        currentLaunchState = LaunchState.STOP_INTAKE;
                     }
                 }
                 break;
