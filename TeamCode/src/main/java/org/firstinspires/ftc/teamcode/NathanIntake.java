@@ -256,6 +256,12 @@ public class NathanIntake extends OpMode {
             case IDLE:
                 if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
+                    intake.setPower(0);
+                } else{
+                    intake.setPower(1);
+                }
+                if (gamepad2.aWasPressed()) {
+                    intake.setPower(0);
                 }
                 break;
             case SPIN_UP:
