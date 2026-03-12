@@ -41,6 +41,9 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
 
     private enum LaunchState {
         IDLE,
+        INTAKE,
+        STOP_INTAKE,
+        REVERSE_INTAKE,
         SPIN_UP,
         FEED,
         STOP_FEED
@@ -199,15 +202,29 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("right front power", rightFrontPower);
         telemetry.addData("left back power", leftBackPower);
         telemetry.addData("right back power", rightBackPower);
+        telemetry.addData("intake Speed",intake.getPower());
 
         switch (currentLaunchState) {
             case IDLE:
                 // If the user presses the "a" button, and we are in the IDLE state,
-                // we transition to the SPIN_UP state.
-                if (gamepad2.right_bumper) {
-                    currentLaunchState = LaunchState.SPIN_UP;
+                // we transition to the Intake state.
+                if (gamepad2.left_bumper) {
+                    currentLaunchState = LaunchState.INTAKE;
                 }
                 break;
+            case INTAKE:
+                //The intake motor starts up and doesn't stop unless it is in STOP_INTAKE
+                intake.setPower(FULL_SPEED);
+                if (gamepad2.a) {
+                    currentLaunchState = LaunchState.SPIN_UP;
+                }
+                if (gamepad2.right_bumper) {
+                    currentLaunchState = LaunchState.STOP_INTAKE;
+                }
+            case STOP_INTAKE:
+                //Stops the intake and sets launch state to idle
+                intake.setPower(STOP_SPEED);
+                currentLaunchState = LaunchState.IDLE;
 
             case SPIN_UP:
                 // In this state, we set the launcher motor to our target velocity.
@@ -218,6 +235,9 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
                 if(launcher.getVelocity() >= LAUNCHER_MIN_VELOCITY) {
                     currentLaunchState = LaunchState.FEED;
                 }
+                if (gamepad2.right_bumper) {
+                   intake.setPower(STOP_SPEED);
+                }
                 break;
 
             case FEED:
@@ -226,7 +246,9 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
                 rightFeeder.setPower(FULL_SPEED);
                 // We also reset our timer so we can time how long we run the feeder servos.
                 feederTimer.reset();
-
+                if (gamepad2.right_bumper) {
+                    intake.setPower(STOP_SPEED);
+                }
                 currentLaunchState = LaunchState.STOP_FEED;
                 break;
 
@@ -240,6 +262,9 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
                     launcher.setVelocity(0);
                     // And we transition back to the IDLE state.
                     currentLaunchState = LaunchState.IDLE;
+                    if (gamepad2.right_bumper) {
+                        currentLaunchState = LaunchState.STOP_INTAKE;
+                    }
                 }
                 break;
         }
