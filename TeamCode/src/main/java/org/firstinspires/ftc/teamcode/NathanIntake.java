@@ -205,16 +205,7 @@ public class NathanIntake extends OpMode {
         launch(gamepad2.rightBumperWasPressed());
 
         // intake test
-        if (gamepad2.left_bumper) {
-            intake.setPower(1);
-        } else if (gamepad2.leftBumperWasReleased()) {
-            intake.setPower(0);
-        }
-        if(gamepad2.xWasPressed()){
-            intake.setPower(-1);
-        } else if (gamepad2.xWasReleased()) {
-            intake.setPower(0);
-        }
+
 
         /*
          * Show the state and motor powers
@@ -254,16 +245,25 @@ public class NathanIntake extends OpMode {
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
+                intake.setPower(0);
                 if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
                     intake.setPower(0);
-                } else if (gamepad2.aWasPressed()) {
-                    intake.setPower(0);
-                } else {
-                        intake.setPower(1);
                 }
+                if (gamepad2.left_bumper) {
+                intake.setPower(1);
+            } else if (gamepad2.leftBumperWasReleased()) {
+                intake.setPower(0);
+            }
+                if(gamepad2.xWasPressed()){
+                    intake.setPower(-1);
+                } else if (gamepad2.xWasReleased()) {
+                    intake.setPower(0);
+                }
+
                 break;
             case SPIN_UP:
+                intake.setPower(1);
                 launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
                     launchState = LaunchState.LAUNCH;
