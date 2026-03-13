@@ -58,7 +58,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
-@TeleOp(name = "StarterBotTeleopMecanum", group = "StarterBot")
+@TeleOp(name = "DerrensStarterBotTeleopMecanums", group = "StarterBot")
 //@Disabled
 public class DerrensStarterBotTeleopMecanums extends OpMode {
     final double FEED_TIME_SECONDS = 0.40; //The feeder servos run this long when a shot is requested.
@@ -82,7 +82,6 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     private DcMotorEx launcher = null;
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
-
     private DcMotor intake = null;
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -107,6 +106,8 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         SPIN_UP,
         LAUNCH,
         LAUNCHING,
+        INTAKE_FORWARD,
+        INTAKE_REVERSE
     }
 
     private LaunchState launchState;
@@ -302,6 +303,18 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
                     leftFeeder.setPower(STOP_SPEED);
                     rightFeeder.setPower(STOP_SPEED);
                 }
+                break;
+            case INTAKE_FORWARD:
+                if (gamepad2.rightBumperWasPressed())
+                    intake.setPower(1);
+                else if (gamepad2.rightBumperWasReleased())
+                    intake.setPower(0);
+                break;
+            case INTAKE_REVERSE:
+                if (gamepad2.xWasPressed())
+                    intake.setPower(-1);
+                else if (gamepad2.xWasReleased())
+                    intake.setPower(0);
                 break;
         }
     }
