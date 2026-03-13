@@ -245,7 +245,6 @@ public class NathanIntake extends OpMode {
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
-                intake.setPower(0);
                 if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
                     intake.setPower(0);
