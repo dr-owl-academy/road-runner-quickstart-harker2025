@@ -114,6 +114,10 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
 
+    private DcMotor intake = null;
+
+    
+
     ElapsedTime feederTimer = new ElapsedTime();
 
     /*
@@ -156,6 +160,8 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
+        intake = hardwareMap.get(DcMotor.class, "intake");
+
 
         // Set the drive motor directions and zero power behavior.
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -279,6 +285,14 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
          * 2. The launcher motor reaching a certain velocity.
          * 3. A timer expiring.
          */
+
+        if gamepad2.circle {
+            do intake.setPower(1);
+            gamepad2.circle;
+            while gamepad2.circle;
+        } else {
+            intake.setPower(0);
+        }
 
         switch (currentLaunchState) {
             case IDLE:
