@@ -39,8 +39,7 @@ public class NathanIntake extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 2500;
-    final double LAUNCHER_MIN_VELOCITY = 2000;
+
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -84,6 +83,8 @@ public class NathanIntake extends OpMode {
     double rightFrontPower;
     double leftBackPower;
     double rightBackPower;
+    double LAUNCHER_TARGET_VELOCITY = 2250;
+    double LAUNCHER_MIN_VELOCITY = 1750;
 
 
     /*
@@ -259,6 +260,15 @@ public class NathanIntake extends OpMode {
                 } else if (gamepad2.xWasReleased()) {
                     intake.setPower(0);
                 }
+                if(gamepad2.dpadUpWasPressed()){
+                    double LAUNCHER_MIN_VELOCITY =+ 100;
+                    double LAUNCHER_TARGET_VELOCITY =+ 100;
+                }
+                if(gamepad2.dpadDownWasPressed()) {
+                    double LAUNCHER_MIN_VELOCITY = -100;
+                    double LAUNCHER_TARGET_VELOCITY = -100;
+                }
+
 
                 break;
             case SPIN_UP:
