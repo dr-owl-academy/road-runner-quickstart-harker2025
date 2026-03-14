@@ -1,4 +1,6 @@
-/* Copyright (c) 2025 FIRST
+/*
+ * Copyright (c) 2024 FIRST
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -141,9 +143,9 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
         STOP_FEED
     }
 
+
     //The variable that will hold the current state of our launch machine.
     private LaunchState currentLaunchState = LaunchState.IDLE;
-
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -189,7 +191,6 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
          * launcher performance. These values are determined experimentally.
          */
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        PIDFCoefficients pidf = launcher.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(25, 0, 7, 13.5));
 
 
@@ -286,12 +287,10 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
          * 3. A timer expiring.
          */
 
-        if gamepad2.circle {
-            do intake.setPower(1);
-            gamepad2.circle;
-            while gamepad2.circle;
+        if (gamepad2.circle) {
+            intake.setPower(1.0);
         } else {
-            intake.setPower(0);
+            intake.setPower(0.0);
         }
 
         switch (currentLaunchState) {
