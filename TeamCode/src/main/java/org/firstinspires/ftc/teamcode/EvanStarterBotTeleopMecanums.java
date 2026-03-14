@@ -239,6 +239,8 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
 
         if (gamepad2.xWasPressed()) {
             intake.setPower(-1);
+        } else if (gamepad2.xWasReleased()){
+            intake.setPower(0);
         }
 
         /*
@@ -284,11 +286,20 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
-                if (shotRequested) {
-                    launchState = LaunchState.SPIN_UP;
+                if (gamepad2.leftBumperWasPressed()) {
+                    intake.setPower(1);
+                } else if (gamepad2.leftBumperWasReleased()) {
+                    intake.setPower(0);
                 }
-                break;
+
+                if (gamepad2.xWasPressed()) {
+                    intake.setPower(-1);
+                } else if (gamepad2.xWasReleased()){
+                    intake.setPower(0);
+                }
+        break;
             case SPIN_UP:
+                intake.setPower(1);
                 launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
                     launchState = LaunchState.LAUNCH;
