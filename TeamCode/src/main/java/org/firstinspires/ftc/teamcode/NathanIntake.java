@@ -213,6 +213,8 @@ public class NathanIntake extends OpMode {
          */
         telemetry.addData("State", launchState);
         telemetry.addData("motorSpeed", launcher.getVelocity());
+        telemetry.addData("launchSpeedMIN",LAUNCHER_MIN_VELOCITY);
+        telemetry.addData("launchSpeedTARGET",LAUNCHER_TARGET_VELOCITY);
 
     }
 
@@ -268,7 +270,6 @@ public class NathanIntake extends OpMode {
                     double LAUNCHER_MIN_VELOCITY = -100;
                     double LAUNCHER_TARGET_VELOCITY = -100;
                 }
-
 
                 break;
             case SPIN_UP:
