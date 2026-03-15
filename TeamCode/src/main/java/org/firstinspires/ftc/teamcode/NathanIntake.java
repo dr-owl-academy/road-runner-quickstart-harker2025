@@ -236,10 +236,10 @@ public class NathanIntake extends OpMode {
          */
         double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
 
-        leftFrontPower = (forward + strafe + rotate) / 2.5;
-        rightFrontPower = (forward - strafe - rotate) / 2.5;
-        leftBackPower = (forward - strafe + rotate) / 2.5;
-        rightBackPower = (forward + strafe - rotate) / 2.5;
+        leftFrontPower = (forward + strafe + rotate) / 2.25;
+        rightFrontPower = (forward - strafe - rotate) / 2.25;
+        leftBackPower = (forward - strafe + rotate) / 2.25;
+        rightBackPower = (forward + strafe - rotate) / 2.25;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
@@ -260,12 +260,12 @@ public class NathanIntake extends OpMode {
             } else if (gamepad2.leftBumperWasReleased()) {
                 intake.setPower(0);
             }
-                if(gamepad2.xWasPressed()){
+                if(gamepad2.xWasPressed()) {
                     intake.setPower(-1);
                 } else if (gamepad2.xWasReleased()) {
                     intake.setPower(0);
                 }
-                if(gamepad2.dpadUpWasPressed()){
+                if(gamepad2.dpadUpWasPressed()) {
                     LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
                     LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
                 }
