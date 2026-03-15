@@ -85,6 +85,7 @@ public class NathanIntake extends OpMode {
     double rightBackPower;
     double LAUNCHER_TARGET_VELOCITY = 2250;
     double LAUNCHER_MIN_VELOCITY = 1750;
+    double INCREASE_VALUE = 100;
 
 
     /*
@@ -106,6 +107,7 @@ public class NathanIntake extends OpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
+
 
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
@@ -165,6 +167,7 @@ public class NathanIntake extends OpMode {
      */
     @Override
     public void init_loop() {
+
     }
 
     /*
@@ -263,12 +266,12 @@ public class NathanIntake extends OpMode {
                     intake.setPower(0);
                 }
                 if(gamepad2.dpadUpWasPressed()){
-                    double LAUNCHER_MIN_VELOCITY =+ 100;
-                    double LAUNCHER_TARGET_VELOCITY =+ 100;
+                    LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
+                    LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
                 }
                 if(gamepad2.dpadDownWasPressed()) {
-                    double LAUNCHER_MIN_VELOCITY = -100;
-                    double LAUNCHER_TARGET_VELOCITY = -100;
+                    LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
+                    LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
                 }
 
                 break;
