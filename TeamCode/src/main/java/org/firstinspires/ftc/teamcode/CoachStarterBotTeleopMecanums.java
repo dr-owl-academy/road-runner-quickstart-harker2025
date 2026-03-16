@@ -58,9 +58,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
-@TeleOp(name = "StarterBotTeleopMecanums", group = "StarterBot")
+@TeleOp(name = "CoachStarterBotTeleopMecanums", group = "StarterBot")
 //@Disabled
-public class StarterBotTeleopMecanums extends OpMode {
+public class CoachStarterBotTeleopMecanums extends OpMode {
     final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 1.0;
@@ -238,11 +238,11 @@ public class StarterBotTeleopMecanums extends OpMode {
             intake.setPower(1);
         } else if (gamepad2.leftBumperWasReleased()) {
             intake.setPower(0);
+            if (gamepad2.xWasPressed()){
+                intake.setPower(-1);
+            }
         }
 
-        if (gamepad2.xWasPressed()) {
-            intake.setPower(-1);
-        }
 
         /*
          * Now we call our "Launch" function.
