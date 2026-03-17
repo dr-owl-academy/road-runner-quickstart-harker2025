@@ -270,14 +270,14 @@ public class NathanIntake extends OpMode {
                     LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
                     LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
                     if (gamepad2.dpadUpWasPressed()) {
-                        new SleepAction(0.5);
+                        new SleepAction(0.3);
                     }
                 }
                 if(gamepad2.dpadDownWasPressed()) {
                     LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
                     LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
                     if (gamepad2.dpadDownWasPressed()) {
-                        new SleepAction(0.5);
+                        new SleepAction(0.3);
                     }
                 }
 
