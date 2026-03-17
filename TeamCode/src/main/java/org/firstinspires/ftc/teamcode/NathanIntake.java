@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -239,7 +240,7 @@ public class NathanIntake extends OpMode {
         leftFrontPower = (forward + strafe + rotate) / 2.25;
         rightFrontPower = (forward - strafe - rotate) / 2.25;
         leftBackPower = (forward - strafe + rotate) / 2.25;
-        rightBackPower = (forward + strafe - rotate) / 2.25;
+        rightBackPower = (forward + strafe - rotate) / 2.25 ;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
@@ -265,13 +266,19 @@ public class NathanIntake extends OpMode {
                 } else if (gamepad2.xWasReleased()) {
                     intake.setPower(0);
                 }
-                if(gamepad2.dpadUpWasPressed()) {
+                while (gamepad2.dpadUpWasPressed()) {
                     LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
                     LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
+                    if (gamepad2.dpadUpWasPressed()) {
+                        new SleepAction(0.5);
+                    }
                 }
                 if(gamepad2.dpadDownWasPressed()) {
                     LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
                     LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
+                    if (gamepad2.dpadDownWasPressed()) {
+                        new SleepAction(0.5);
+                    }
                 }
 
                 break;
