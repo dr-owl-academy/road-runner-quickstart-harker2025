@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "StarterBotTeleopMecanumsNathan", group = "StarterBot")
 //@Disabled
-public class NathanIntake extends OpMode {
+public class StarterBotTeleopMecanumsNathan extends OpMode {
     final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 5250.0;
@@ -213,7 +213,7 @@ public class NathanIntake extends OpMode {
         while (gamepad2.dpadDownWasPressed()) {
             LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
             LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
-            if (gamepad2.dpadUpWasPressed()) {
+            if (gamepad2.dpadDownWasPressed()) {
                 new SleepAction(0.3);
             }
         }
