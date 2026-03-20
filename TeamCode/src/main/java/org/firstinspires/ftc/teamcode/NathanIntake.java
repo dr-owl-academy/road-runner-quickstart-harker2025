@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -202,6 +203,20 @@ public class NathanIntake extends OpMode {
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
         }
+        while (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
+            if (gamepad2.dpadUpWasPressed()) {
+                new SleepAction(0.3);
+            }
+        }
+        while (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
+            if (gamepad2.dpadUpWasPressed()) {
+                new SleepAction(0.3);
+            }
+        }
 
         /*
          * Now we call our "Launch" function.
@@ -239,7 +254,7 @@ public class NathanIntake extends OpMode {
         leftFrontPower = (forward + strafe + rotate) / 2.25;
         rightFrontPower = (forward - strafe - rotate) / 2.25;
         leftBackPower = (forward - strafe + rotate) / 2.25;
-        rightBackPower = (forward + strafe - rotate) / 2.25;
+        rightBackPower = (forward + strafe - rotate) / 2.25 ;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
@@ -264,14 +279,6 @@ public class NathanIntake extends OpMode {
                     intake.setPower(-1);
                 } else if (gamepad2.xWasReleased()) {
                     intake.setPower(0);
-                }
-                if(gamepad2.dpadUpWasPressed()) {
-                    LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
-                    LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
-                }
-                if(gamepad2.dpadDownWasPressed()) {
-                    LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
-                    LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
                 }
 
                 break;
