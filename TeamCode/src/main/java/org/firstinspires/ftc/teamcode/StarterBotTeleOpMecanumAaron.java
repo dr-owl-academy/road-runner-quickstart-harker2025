@@ -104,8 +104,10 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 5000;
-    final double LAUNCHER_MIN_VELOCITY = 1075;
+    double launcherTargetVelocity = 5000;
+    final double LAUNCHER_MIN_VELOCITY = 1750;
+    boolean lastDpadUp = false;
+    boolean lastDpadDown = false;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -234,35 +236,12 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
         //Combine the joystick requests for each axis-motion to determine each wheel's power.
         //Set up a variable for each drive wheel to save power level for telemetry.
         double[] wheelSpeeds = new double[4];
-        wheelSpeeds[0] = drive + strafe + twist;
-        wheelSpeeds[1] = drive - strafe - twist;
-        wheelSpeeds[2] = drive - strafe + twist;
-        wheelSpeeds[3] = drive + strafe - twist;
+        wheelSpeeds[0] = (drive + strafe + twist)/1.5;
+        wheelSpeeds[1] = (drive - strafe - twist)/1.5;
+        wheelSpeeds[2] = (drive - strafe + twist)/1.5;
+        wheelSpeeds[3] = (drive + strafe - twist)/1.5;
 
 
-        //
-        //NORMALIZING THE WHEELSPEEDS
-        //
-        // The values of wheelSpeeds can be over 1, leading to clipping.
-        // We normalize them so the highest value is 1, and all the other values are
-        // scaled so they remain in proportion.
-        //
-        // We do this by finding the absolute value of the largest wheel speed.
-        double max = Math.abs(wheelSpeeds[0]);
-        for(int i = 1; i < wheelSpeeds.length; i++) {
-            if ( max < Math.abs(wheelSpeeds[i]) ) {
-                max = Math.abs(wheelSpeeds[i]);
-            }
-        }
-
-        // If the maximum is greater than 1, we divide all the values by the maximum.
-        // This ensures that no value is greater than 1, and that all values are
-        // scaled proportionally.
-        if (max > 1) {
-            for (int i = 0; i < wheelSpeeds.length; i++) {
-                wheelSpeeds[i] = wheelSpeeds[i] / max;
-            }
-        }
 
         leftFrontDrive.setPower(wheelSpeeds[0]);
         rightFrontDrive.setPower(wheelSpeeds[1]);
@@ -287,11 +266,23 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
          * 3. A timer expiring.
          */
 
-        if (gamepad2.circle) {
+        if (gamepad2.y) {
             intake.setPower(1.0);
         } else {
             intake.setPower(0.0);
         }
+
+        // Increase target velocity by 100 when dpad_up is pressed
+        if (gamepad2.dpad_up && !lastDpadUp) {
+            launcherTargetVelocity += 100;
+        }
+        lastDpadUp = gamepad2.dpad_up;
+
+        // Decrease target velocity by 100 when dpad_down is pressed
+        if (gamepad2.dpad_down && !lastDpadDown) {
+            launcherTargetVelocity -= 100;
+        }
+        lastDpadDown = gamepad2.dpad_down;
 
         switch (currentLaunchState) {
             case IDLE:
@@ -304,7 +295,7 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
 
             case SPIN_UP:
                 // In this state, we set the launcher motor to our target velocity.
-                launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+                launcher.setVelocity(launcherTargetVelocity);
 
                 // We can check the current velocity of the motor to see if it has reached
                 // our minimum velocity. If it has, we transition to the FEED state.
@@ -341,6 +332,7 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
         // Let's add some telemetry data to our driver station, so we can see what's
         // going on with our launcher.
         telemetry.addData("Launcher State", currentLaunchState);
+        telemetry.addData("Target Velocity", launcherTargetVelocity);
         telemetry.addData("Launcher Velocity", launcher.getVelocity());
 
 
