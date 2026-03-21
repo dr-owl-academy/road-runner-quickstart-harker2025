@@ -305,9 +305,9 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
                 }
                 break;
             case INTAKE_FORWARD:
-                if (gamepad2.rightBumperWasPressed())
+                if (gamepad2.leftBumperWasPressed())
                     intake.setPower(1);
-                else if (gamepad2.rightBumperWasReleased())
+                else if (gamepad2.leftBumperWasReleased())
                     intake.setPower(0);
                 break;
             case INTAKE_REVERSE:
