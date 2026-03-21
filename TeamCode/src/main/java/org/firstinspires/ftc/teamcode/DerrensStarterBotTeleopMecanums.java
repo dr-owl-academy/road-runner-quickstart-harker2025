@@ -235,8 +235,10 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
             intake.setPower(0);
         }
 
-        if (gamepad2.xWasPressed()) {
+        if (gamepad2.rightBumperWasPressed()) {
             intake.setPower(-1);
+        } else if (gamepad2.rightBumperWasPressed()) {
+                intake.setPower(0);
         }
         /*
          * Now we call our "Launch" function.
@@ -311,9 +313,9 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
                     intake.setPower(0);
                 break;
             case INTAKE_REVERSE:
-                if (gamepad2.xWasPressed())
+                if (gamepad2.rightBumperWasPressed())
                     intake.setPower(-1);
-                else if (gamepad2.xWasReleased())
+                else if (gamepad2.rightBumperWasPressed())
                     intake.setPower(0);
                 break;
         }
