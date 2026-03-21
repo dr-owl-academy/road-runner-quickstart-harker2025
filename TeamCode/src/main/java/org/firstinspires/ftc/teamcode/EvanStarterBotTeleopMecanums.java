@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -71,8 +72,8 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 2500;
-    final double LAUNCHER_MIN_VELOCITY = 1075;
+    double LAUNCHER_TARGET_VELOCITY = 2500;
+    double LAUNCHER_MIN_VELOCITY = 1738;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -231,17 +232,21 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
             launcher.setVelocity(STOP_SPEED);
         }
         // intake test
-        if (gamepad2.leftBumperWasPressed()) {
-            intake.setPower(1);
-        } else if (gamepad2.leftBumperWasReleased()) {
-            intake.setPower(0);
+        while (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + 100;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + 100;
+            if (gamepad2.dpadUpWasPressed()) {
+                new SleepAction(0.3);
+            }
+    }
+        while (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - 100;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY -100;
+            if (gamepad2.dpadDownWasPressed()) {
+                new SleepAction(0.3);
+            }
         }
 
-        if (gamepad2.xWasPressed()) {
-            intake.setPower(-1);
-        } else if (gamepad2.xWasReleased()){
-            intake.setPower(0);
-        }
 
         /*
          * Now we call our "Launch" function.
