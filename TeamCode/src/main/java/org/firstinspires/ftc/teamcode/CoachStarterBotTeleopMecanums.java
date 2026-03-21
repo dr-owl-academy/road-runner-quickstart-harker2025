@@ -72,7 +72,7 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
      * at. The minimum velocity is a threshold for determining when to fire.
      */
     final double LAUNCHER_TARGET_VELOCITY = 3000;
-    final double LAUNCHER_MIN_VELOCITY = 1500;
+    double LAUNCHER_MIN_VELOCITY = 1500;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -108,6 +108,7 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
         SPIN_UP,
         LAUNCH,
         LAUNCHING,
+        INTAKE
     }
 
     private LaunchState launchState;
@@ -233,16 +234,6 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
             launcher.setVelocity(STOP_SPEED);
         }
 
-        // intake test
-        if (gamepad2.leftBumperWasPressed()) {
-            intake.setPower(1);
-        } else if (gamepad2.leftBumperWasReleased()) {
-            intake.setPower(0);
-            if (gamepad2.xWasPressed()){
-                intake.setPower(-1);
-            }
-        }
-
 
         /*
          * Now we call our "Launch" function.
@@ -253,7 +244,10 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
          * Show the state and motor powers
          */
         telemetry.addData("State", launchState);
-        telemetry.addData("motorSpeed", launcher.getVelocity());
+        telemetry.addData(" Launcher Speed", launcher.getVelocity());
+        telemetry.addData("Launcher Min Velocity", LAUNCHER_MIN_VELOCITY);
+        telemetry.addData("Intake Power", intake.getPower());
+        telemetry.update();
 
     }
 
@@ -287,27 +281,44 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
-                if (shotRequested) {
+                if(gamepad2.left_bumper || gamepad2.left_trigger > 0.1) {
+                    launchState = LaunchState.INTAKE;
+                }
+                else if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
                 }
                 break;
+
             case SPIN_UP:
                 launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
                     launchState = LaunchState.LAUNCH;
                 }
                 break;
+
             case LAUNCH:
                 leftFeeder.setPower(FULL_SPEED);
                 rightFeeder.setPower(FULL_SPEED);
                 feederTimer.reset();
                 launchState = LaunchState.LAUNCHING;
                 break;
+
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
                     launchState = LaunchState.IDLE;
                     leftFeeder.setPower(STOP_SPEED);
                     rightFeeder.setPower(STOP_SPEED);
+                }
+                break;
+
+            case INTAKE:
+                if (gamepad2.left_bumper) {
+                    intake.setPower(1);
+                } else if (gamepad2.left_trigger > 0.1) {
+                    intake.setPower(-1);
+                } else {
+                    intake.setPower(0);
+                    launchState = LaunchState.IDLE;
                 }
                 break;
         }
