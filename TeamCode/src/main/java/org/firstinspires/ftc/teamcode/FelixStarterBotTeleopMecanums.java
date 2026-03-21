@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -23,8 +24,8 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     final double FULL_SPEED = -6000.0;
 
 
-    final double LAUNCHER_TARGET_VELOCITY = 1125;
-    final double LAUNCHER_MIN_VELOCITY = 1075;
+     double LAUNCHER_TARGET_VELOCITY = 1125;
+     double LAUNCHER_MIN_VELOCITY = 1075;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -43,7 +44,6 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         IDLE,
         INTAKE,
         STOP_INTAKE,
-        REVERSE_INTAKE,
         SPIN_UP,
         FEED,
         STOP_FEED
@@ -51,7 +51,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
 
     private LaunchState currentLaunchState;
 
-    // Setup a variable for each drive wheel to save power level for telemetry
+    // Set up a variable for each drive wheel to save power level for telemetry
     double leftFrontPower;
     double rightFrontPower;
     double leftBackPower;
@@ -182,6 +182,17 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         } else if (gamepad1.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
         }
+        while (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + 100;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + 100;
+
+        }
+        while (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - 100;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - 100;
+
+            }
+
 
 
         /*
@@ -203,6 +214,8 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("left back power", leftBackPower);
         telemetry.addData("right back power", rightBackPower);
         telemetry.addData("intake Speed",intake.getPower());
+        telemetry.addData("min launch velocity",LAUNCHER_MIN_VELOCITY);
+        telemetry.addData("target launch velocity",LAUNCHER_TARGET_VELOCITY);
 
         switch (currentLaunchState) {
             case IDLE:
