@@ -1,14 +1,46 @@
+/*
+ * Copyright (c) 2025 FIRST
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided that
+ * the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list
+ * of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of FIRST nor the names of its contributors may be used to
+ * endorse or promote products derived from this software without specific prior
+ * written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+ * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
-import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -27,12 +59,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
-@TeleOp(name = "StarterBotTeleopMecanumsNathan", group = "StarterBot")
+@TeleOp(name = "AdrianStarterbotTeleop", group = "StarterBot")
 //@Disabled
-public class NathanIntake extends OpMode {
+public class AdrianStarterbotTeleop extends OpMode {
     final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    final double FULL_SPEED = 5250.0;
+    final double FULL_SPEED = 1.0;
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -40,7 +72,8 @@ public class NathanIntake extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-
+    double LAUNCHER_TARGET_VELOCITY = 3000;
+    double LAUNCHER_MIN_VELOCITY = 1500;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -51,6 +84,7 @@ public class NathanIntake extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
+
 
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -84,10 +118,6 @@ public class NathanIntake extends OpMode {
     double rightFrontPower;
     double leftBackPower;
     double rightBackPower;
-    double LAUNCHER_TARGET_VELOCITY = 2250;
-    double LAUNCHER_MIN_VELOCITY = 1750;
-    double INCREASE_VALUE = 100;
-
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -108,6 +138,7 @@ public class NathanIntake extends OpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
+        intake = hardwareMap.get(DcMotor.class, "intake");
 
 
         /*
@@ -131,6 +162,7 @@ public class NathanIntake extends OpMode {
          */
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
         /*
          * Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to
          * slow down much faster when it is coasting. This creates a much more controllable
@@ -141,7 +173,6 @@ public class NathanIntake extends OpMode {
         leftBackDrive.setZeroPowerBehavior(BRAKE);
         rightBackDrive.setZeroPowerBehavior(BRAKE);
         launcher.setZeroPowerBehavior(BRAKE);
-        intake = hardwareMap.get(DcMotor.class,"intake");
 
         /*
          * set Feeders to an initial value to initialize the servo controller
@@ -155,7 +186,7 @@ public class NathanIntake extends OpMode {
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
          * both work to feed the ball into the robot.
          */
-        rightFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
         /*
          * Tell the driver that initialization is complete.
@@ -168,7 +199,6 @@ public class NathanIntake extends OpMode {
      */
     @Override
     public void init_loop() {
-
     }
 
     /*
@@ -198,41 +228,42 @@ public class NathanIntake extends OpMode {
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
+        if (gamepad1.dpadUpWasPressed())
+            if (LAUNCHER_MIN_VELOCITY >= 1500)
+                if (LAUNCHER_MIN_VELOCITY <= 2900)
+                    LAUNCHER_MIN_VELOCITY = (LAUNCHER_MIN_VELOCITY + 100);
+        ;
+        if (gamepad1.dpadDownWasPressed())
+            if (LAUNCHER_MIN_VELOCITY >= 1600)
+                if (LAUNCHER_MIN_VELOCITY <= 3000)
+                    LAUNCHER_MIN_VELOCITY = (LAUNCHER_MIN_VELOCITY - 100);
         if (gamepad2.y) {
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
         }
-        while (gamepad2.dpadUpWasPressed()) {
-            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
-            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
-            if (gamepad2.dpadUpWasPressed()) {
-                new SleepAction(0.3);
+
+        // intake test
+        if (gamepad2.leftBumperWasPressed()) {
+            intake.setPower(1);
+        } else if (gamepad2.leftBumperWasReleased()) {
+            intake.setPower(0);
+            if (gamepad2.xWasPressed()){
+                intake.setPower(-1);
             }
         }
-        while (gamepad2.dpadDownWasPressed()) {
-            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
-            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
-            if (gamepad2.dpadUpWasPressed()) {
-                new SleepAction(0.3);
-            }
-        }
+
 
         /*
          * Now we call our "Launch" function.
          */
         launch(gamepad2.rightBumperWasPressed());
 
-        // intake test
-
-
         /*
          * Show the state and motor powers
          */
         telemetry.addData("State", launchState);
         telemetry.addData("motorSpeed", launcher.getVelocity());
-        telemetry.addData("launchSpeedMIN",LAUNCHER_MIN_VELOCITY);
-        telemetry.addData("launchSpeedTARGET",LAUNCHER_TARGET_VELOCITY);
 
     }
 
@@ -251,10 +282,10 @@ public class NathanIntake extends OpMode {
          */
         double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
 
-        leftFrontPower = (forward + strafe + rotate) / 2.25;
-        rightFrontPower = (forward - strafe - rotate) / 2.25;
-        leftBackPower = (forward - strafe + rotate) / 2.25;
-        rightBackPower = (forward + strafe - rotate) / 2.25 ;
+        leftFrontPower = (forward + strafe + rotate) / denominator;
+        rightFrontPower = (forward - strafe - rotate) / denominator;
+        leftBackPower = (forward - strafe + rotate) / denominator;
+        rightBackPower = (forward + strafe - rotate) / denominator;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
@@ -263,27 +294,15 @@ public class NathanIntake extends OpMode {
 
     }
 
+
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
                 if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
-                    intake.setPower(0);
                 }
-                if (gamepad2.left_bumper) {
-                intake.setPower(1);
-            } else if (gamepad2.leftBumperWasReleased()) {
-                intake.setPower(0);
-            }
-                if(gamepad2.xWasPressed()) {
-                    intake.setPower(-1);
-                } else if (gamepad2.xWasReleased()) {
-                    intake.setPower(0);
-                }
-
                 break;
             case SPIN_UP:
-                intake.setPower(1);
                 launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
                     launchState = LaunchState.LAUNCH;
