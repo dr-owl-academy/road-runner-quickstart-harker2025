@@ -71,7 +71,7 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 3000;
+    double LAUNCHER_TARGET_VELOCITY = 3000;
     double LAUNCHER_MIN_VELOCITY = 1500;
 
     // Declare OpMode members.
@@ -225,9 +225,19 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         /*
+         * TARGET VELOCITY ADJUSTMENT LOGIC using built-in edge detection to change speed by 10 per press.
+         */
+        if (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_TARGET_VELOCITY += 10;
+        }
+        if (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_TARGET_VELOCITY -= 10;
+        }
+        /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
+
         if (gamepad2.y) {
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
@@ -247,6 +257,8 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
         telemetry.addData(" Launcher Speed", launcher.getVelocity());
         telemetry.addData("Launcher Min Velocity", LAUNCHER_MIN_VELOCITY);
         telemetry.addData("Intake Power", intake.getPower());
+        telemetry.addData("Launcher Target Velocity", LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("Launcher Actual Speed", launcher.getVelocity());
         telemetry.update();
 
     }
