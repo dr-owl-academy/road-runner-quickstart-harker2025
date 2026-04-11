@@ -34,6 +34,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -83,6 +85,13 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
+
+    //Coach: declare a localizer using PinpointLocalizer so that you can call the methods in that java class
+    private PinpointLocalizer localizer = null;
+
+    // Change this to your desired starting pose: x, y in inches, heading in radians
+    private Pose2d initialRobotPose = new Pose2d(0, 0, 0);
+    private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
 
 
     ElapsedTime feederTimer = new ElapsedTime();
@@ -188,10 +197,15 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
          */
         leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        // coach: Initialize PinpointLocalizer with starting pose
+        localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK, initialRobotPose);
+
         /*
          * Tell the driver that initialization is complete.
          */
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Initial Pose", "(%.2f, %.2f, %.2f rad)", initialRobotPose.position.x, initialRobotPose.position.y, initialRobotPose.heading.toDouble());
+        telemetry.update();
     }
 
     /*
@@ -250,6 +264,9 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
          */
         launch(gamepad2.rightBumperWasPressed());
 
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
+
         /*
          * Show the state and motor powers
          */
@@ -259,6 +276,8 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("Intake Power", intake.getPower());
         telemetry.addData("Launcher Target Velocity", LAUNCHER_TARGET_VELOCITY);
         telemetry.addData("Launcher Actual Speed", launcher.getVelocity());
+        telemetry.addData("Pose", "(%.1f, %.1f, %.1f)", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
+        telemetry.addData("Velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
         telemetry.update();
 
     }
