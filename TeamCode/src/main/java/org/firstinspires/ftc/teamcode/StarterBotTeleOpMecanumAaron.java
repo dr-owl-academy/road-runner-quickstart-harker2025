@@ -266,11 +266,8 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
          * 3. A timer expiring.
          */
 
-        if (gamepad2.y) {
-            intake.setPower(1.0);
-        } else {
-            intake.setPower(0.0);
-        }
+
+        telemetry.addData("LaunchVelocity", launcherTargetVelocity);
 
         // Increase target velocity by 100 when dpad_up is pressed
         if (gamepad2.dpad_up && !lastDpadUp) {
@@ -286,10 +283,21 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
 
         switch (currentLaunchState) {
             case IDLE:
+                if (gamepad2.leftBumperWasPressed()) {
+                    intake.setPower(1.0);
+                } else {
+                    intake.setPower(0.0);
+                }
+                if (gamepad2.left_trigger > 0.5) {
+                    intake.setPower(-1.0);
+                } else {
+                    intake.setPower(0.0);
+                }
                 // If the user presses the "a" button, and we are in the IDLE state,
                 // we transition to the SPIN_UP state.
                 if (gamepad2.a) {
                     currentLaunchState = LaunchState.SPIN_UP;
+
                 }
                 break;
 
@@ -299,9 +307,20 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
 
                 // We can check the current velocity of the motor to see if it has reached
                 // our minimum velocity. If it has, we transition to the FEED state.
+                if (gamepad2.leftBumperWasPressed()) {
+                    intake.setPower(1.0);
+                } else {
+                    intake.setPower(0.0);
+                }
+                if (gamepad2.left_trigger > 0.5) {
+                    intake.setPower(-1.0);
+                } else {
+                    intake.setPower(0.0);
+                }
                 if(launcher.getVelocity() >= LAUNCHER_MIN_VELOCITY) {
                     currentLaunchState = LaunchState.FEED;
                 }
+
                 break;
 
             case FEED:
@@ -310,8 +329,19 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
                 rightFeeder.setPower(FULL_SPEED);
                 // We also reset our timer so we can time how long we run the feeder servos.
                 feederTimer.reset();
+                if (gamepad2.leftBumperWasPressed()) {
+                    intake.setPower(1.0);
+                } else {
+                    intake.setPower(0.0);
+                }
+                if (gamepad2.left_trigger > 0.5) {
+                    intake.setPower(-1.0);
+                } else {
+                    intake.setPower(0.0);
+                }
 
                 currentLaunchState = LaunchState.STOP_FEED;
+
                 break;
 
             case STOP_FEED:
@@ -323,6 +353,16 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
                     // We also turn off the launcher motor.
                     launcher.setVelocity(0);
                     // And we transition back to the IDLE state.
+                    if (gamepad2.leftBumperWasPressed()) {
+                        intake.setPower(1.0);
+                    } else {
+                        intake.setPower(0.0);
+                    }
+                    if (gamepad2.left_trigger > 0.5) {
+                        intake.setPower(-1.0);
+                    } else {
+                        intake.setPower(0.0);
+                    }
                     currentLaunchState = LaunchState.IDLE;
                 }
                 break;
