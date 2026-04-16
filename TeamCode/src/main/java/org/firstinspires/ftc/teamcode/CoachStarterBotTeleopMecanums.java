@@ -34,6 +34,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -71,8 +73,8 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 3000;
-    final double LAUNCHER_MIN_VELOCITY = 1500;
+    double LAUNCHER_TARGET_VELOCITY = 1500;
+    double LAUNCHER_MIN_VELOCITY = 500;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -83,6 +85,13 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
+
+    //Coach: declare a localizer using PinpointLocalizer so that you can call the methods in that java class
+    private PinpointLocalizer localizer = null;
+
+    // Change this to your desired starting pose: x, y in inches, heading in radians
+    private Pose2d initialRobotPose = new Pose2d(0, 0, 0);
+    private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
 
 
     ElapsedTime feederTimer = new ElapsedTime();
@@ -108,6 +117,7 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
         SPIN_UP,
         LAUNCH,
         LAUNCHING,
+        INTAKE
     }
 
     private LaunchState launchState;
@@ -185,12 +195,17 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
          * both work to feed the ball into the robot.
          */
-        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // coach: Initialize PinpointLocalizer with starting pose
+        localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK, initialRobotPose);
 
         /*
          * Tell the driver that initialization is complete.
          */
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Initial Pose", "(%.2f, %.2f, %.2f rad)", initialRobotPose.position.x, initialRobotPose.position.y, initialRobotPose.heading.toDouble());
+        telemetry.update();
     }
 
     /*
@@ -224,23 +239,23 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         /*
+         * TARGET VELOCITY ADJUSTMENT LOGIC using built-in edge detection to change speed by 10 per press.
+         */
+        if (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_TARGET_VELOCITY += 10;
+        }
+        if (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_TARGET_VELOCITY -= 10;
+        }
+        /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
+
         if (gamepad2.y) {
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
-        }
-
-        // intake test
-        if (gamepad2.leftBumperWasPressed()) {
-            intake.setPower(1);
-        } else if (gamepad2.leftBumperWasReleased()) {
-            intake.setPower(0);
-            if (gamepad2.xWasPressed()){
-                intake.setPower(-1);
-            }
         }
 
 
@@ -249,11 +264,20 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
          */
         launch(gamepad2.rightBumperWasPressed());
 
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
+
         /*
          * Show the state and motor powers
          */
         telemetry.addData("State", launchState);
-        telemetry.addData("motorSpeed", launcher.getVelocity());
+        telemetry.addData("Launcher Min Velocity", LAUNCHER_MIN_VELOCITY);
+        telemetry.addData("Intake Power", intake.getPower());
+        telemetry.addData("Launcher Target Velocity", LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("Launcher Actual Speed", launcher.getVelocity());
+        telemetry.addData("Pose", "(%.1f, %.1f, %.1f)", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
+        telemetry.addData("Velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.update();
 
     }
 
@@ -287,27 +311,44 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
-                if (shotRequested) {
+                if(gamepad2.left_bumper || gamepad2.left_trigger > 0.1) {
+                    launchState = LaunchState.INTAKE;
+                }
+                else if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
                 }
                 break;
+
             case SPIN_UP:
                 launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
                     launchState = LaunchState.LAUNCH;
                 }
                 break;
+
             case LAUNCH:
                 leftFeeder.setPower(FULL_SPEED);
                 rightFeeder.setPower(FULL_SPEED);
                 feederTimer.reset();
                 launchState = LaunchState.LAUNCHING;
                 break;
+
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
                     launchState = LaunchState.IDLE;
                     leftFeeder.setPower(STOP_SPEED);
                     rightFeeder.setPower(STOP_SPEED);
+                }
+                break;
+
+            case INTAKE:
+                if (gamepad2.left_bumper) {
+                    intake.setPower(1);
+                } else if (gamepad2.left_trigger > 0.1) {
+                    intake.setPower(-1);
+                } else {
+                    intake.setPower(0);
+                    launchState = LaunchState.IDLE;
                 }
                 break;
         }
