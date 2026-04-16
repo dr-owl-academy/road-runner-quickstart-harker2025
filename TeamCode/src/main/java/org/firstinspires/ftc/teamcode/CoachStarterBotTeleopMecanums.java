@@ -73,8 +73,8 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    double LAUNCHER_TARGET_VELOCITY = 3000;
-    double LAUNCHER_MIN_VELOCITY = 1500;
+    double LAUNCHER_TARGET_VELOCITY = 1500;
+    double LAUNCHER_MIN_VELOCITY = 500;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -195,7 +195,7 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
          * both work to feed the ball into the robot.
          */
-        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // coach: Initialize PinpointLocalizer with starting pose
         localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK, initialRobotPose);
@@ -271,7 +271,6 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
          * Show the state and motor powers
          */
         telemetry.addData("State", launchState);
-        telemetry.addData(" Launcher Speed", launcher.getVelocity());
         telemetry.addData("Launcher Min Velocity", LAUNCHER_MIN_VELOCITY);
         telemetry.addData("Intake Power", intake.getPower());
         telemetry.addData("Launcher Target Velocity", LAUNCHER_TARGET_VELOCITY);
