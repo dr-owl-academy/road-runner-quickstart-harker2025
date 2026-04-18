@@ -247,8 +247,8 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
          * Show the state and motor powers
          */
         telemetry.addData("State", launchState);
-        telemetry.addData("motorSpeed", launcher.getVelocity());
-
+        telemetry.addData("LauncherVelocity", launcher.getVelocity());
+        telemetry.addData("Launcher_Min_Velocity", LAUNCHER_MIN_VELOCITY);
     }
 
     /*
