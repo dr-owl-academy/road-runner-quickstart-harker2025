@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -33,6 +35,10 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     final double FEED_TIME_SECONDS = 0.40; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 5250.0;
+    private static final double BLUE_GOAL_X = 14.5;
+    private static final double BLUE_GOAL_Y = 129.5;
+    private static final double RED_GOAL_X = 130;
+    private static final double RED_GOAL_Y = 130;
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -51,7 +57,9 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
-
+    private PinpointLocalizer localizer = null;
+    private Pose2d initialRobotPose = new Pose2d(48, 9.3, Math.toRadians(90));
+    private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
     ElapsedTime feederTimer = new ElapsedTime();
 
     /*
@@ -156,11 +164,13 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
          * both work to feed the ball into the robot.
          */
         rightFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK,initialRobotPose);
         /*
          * Tell the driver that initialization is complete.
          */
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Initial Pose", "(%.2f, %.2f, %.2f rad)", initialRobotPose.position.x, initialRobotPose.position.y, initialRobotPose.heading.toDouble());
+        telemetry.update();
     }
 
     /*
@@ -223,6 +233,12 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
          */
         launch(gamepad2.rightBumperWasPressed());
 
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
+        //Distance to BLUE goal
+        double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
+        //Distance to BLUE goal
+        double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
         // intake test
 
 
@@ -231,8 +247,14 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
          */
         telemetry.addData("State", launchState);
         telemetry.addData("motorSpeed", launcher.getVelocity());
+        telemetry.addData("Intake Power", intake.getPower());
         telemetry.addData("launchSpeedMIN",LAUNCHER_MIN_VELOCITY);
         telemetry.addData("launchSpeedTARGET",LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("Pose", "%.1f, %.1f, %.1f", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
+        telemetry.addData("Velocity", "%.1f, %.1f, %.1f", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.addData("Blue goal distance", distToBlue);
+        telemetry.addData("Red goal distance", distToRed);
+        telemetry.update();
 
     }
 
@@ -303,5 +325,14 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
                 }
                 break;
         }
+    }
+    double velocityFromDistance(double x) {
+        //Only clamp minimum (no upper clamp)
+        x = Math.max(18, x);
+
+        return 0.000764989 * x * x * x
+                -0.216997 * x * x
+                +24.42148 * x
+                + 721.27595;
     }
 }
