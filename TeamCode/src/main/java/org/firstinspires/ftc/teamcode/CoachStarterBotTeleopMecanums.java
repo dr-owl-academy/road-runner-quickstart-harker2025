@@ -66,6 +66,11 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
     final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = 1.0;
+    private static final double BLUE_GOAL_X = 14.5;
+    private static final double BLUE_GOAL_Y = 129.5;
+
+    private static final double RED_GOAL_X = 130;
+    private static final double RED_GOAL_Y = 130;
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -90,7 +95,7 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
     private PinpointLocalizer localizer = null;
 
     // Change this to your desired starting pose: x, y in inches, heading in radians
-    private Pose2d initialRobotPose = new Pose2d(0, 0, 0);
+    private Pose2d initialRobotPose = new Pose2d(48, 9.3, Math.toRadians(90));
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
 
 
@@ -266,6 +271,11 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
 
         PoseVelocity2d currentVelocity = localizer.update();
         Pose2d currentPose = localizer.getPose();
+        // Distance to BLUE goal
+        double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
+
+        // Distance to RED goal
+        double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
 
         /*
          * Show the state and motor powers
@@ -277,6 +287,8 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("Launcher Actual Speed", launcher.getVelocity());
         telemetry.addData("Pose", "(%.1f, %.1f, %.1f)", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
         telemetry.addData("Velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.addData("Blue goal distance", distToBlue);
+        telemetry.addData("Red goal distance", distToRed);
         telemetry.update();
 
     }
@@ -352,5 +364,15 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
                 }
                 break;
         }
+    }
+
+    double velocityFromDistance(double x) {
+        // Only clamp minimum (no upper clamp)
+        x = Math.max(18, x);
+
+        return 0.000764989 * x * x * x
+                -0.216997 * x * x
+                +24.42148 * x
+                + 721.27595;
     }
 }
