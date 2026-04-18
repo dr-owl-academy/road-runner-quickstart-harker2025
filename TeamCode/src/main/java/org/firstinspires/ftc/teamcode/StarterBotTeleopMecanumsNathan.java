@@ -84,9 +84,9 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     double rightFrontPower;
     double leftBackPower;
     double rightBackPower;
-    double LAUNCHER_TARGET_VELOCITY = 2250;
+    double LAUNCHER_TARGET_VELOCITY = 1750;
     double LAUNCHER_MIN_VELOCITY = 1750;
-    double INCREASE_VALUE = 100;
+    double INCREASE_VALUE = 10;
 
 
     /*
@@ -108,6 +108,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
+        intake = hardwareMap.get(DcMotor.class,"intake");
 
 
         /*
@@ -141,7 +142,6 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
         leftBackDrive.setZeroPowerBehavior(BRAKE);
         rightBackDrive.setZeroPowerBehavior(BRAKE);
         launcher.setZeroPowerBehavior(BRAKE);
-        intake = hardwareMap.get(DcMotor.class,"intake");
 
         /*
          * set Feeders to an initial value to initialize the servo controller
