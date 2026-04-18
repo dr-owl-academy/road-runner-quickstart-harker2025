@@ -72,7 +72,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
      * at. The minimum velocity is a threshold for determining when to fire.
      */
     final double LAUNCHER_TARGET_VELOCITY = 3000;
-    double LAUNCHER_MIN_VELOCITY = 1075;
+    final double LAUNCHER_MIN_VELOCITY = 1075;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -106,8 +106,8 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         SPIN_UP,
         LAUNCH,
         LAUNCHING,
-        INTAKE,
-
+        INTAKE_FORWARD,
+        INTAKE_REVERSE
     }
 
     private LaunchState launchState;
@@ -135,7 +135,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftBack");
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightBack");
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
-        leftFeeder = hardwareMap.get(CRServo.class, "leftw_feeder");
+        leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
         intake = hardwareMap.get(DcMotor.class, "intake");
         /*
@@ -235,16 +235,8 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
             intake.setPower(0);
         }
 
-        if (gamepad2.rightBumperWasPressed()) {
+        if (gamepad2.xWasPressed()) {
             intake.setPower(-1);
-        } else if (gamepad2.rightBumperWasPressed()) {
-                intake.setPower(0);
-        }
-        if (gamepad2.dpadUpWasPressed()) {
-            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + 100;
-        }
-        if (gamepad2.dpadDownWasPressed()) {
-            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - 100;
         }
         /*
          * Now we call our "Launch" function.
@@ -256,7 +248,6 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
          */
         telemetry.addData("State", launchState);
         telemetry.addData("motorSpeed", launcher.getVelocity());
-        telemetry.addData("Launcher_Min_Velocity",LAUNCHER_MIN_VELOCITY );
 
     }
 
@@ -290,8 +281,6 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
-                if (gamepad2.leftBumperWasPressed() || gamepad2.left_trigger > 0.1)
-                    launchState = LaunchState.INTAKE;
                 if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
                 }
@@ -315,14 +304,16 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
                     rightFeeder.setPower(STOP_SPEED);
                 }
                 break;
-            case INTAKE:
-                if (gamepad2.leftBumperWasPressed())
-                    intake.setPower(1);
-                else if (gamepad2.leftBumperWasReleased())
-                    intake.setPower(0);
+            case INTAKE_FORWARD:
                 if (gamepad2.rightBumperWasPressed())
+                    intake.setPower(1);
+                else if (gamepad2.rightBumperWasReleased())
+                    intake.setPower(0);
+                break;
+            case INTAKE_REVERSE:
+                if (gamepad2.xWasPressed())
                     intake.setPower(-1);
-                else if (gamepad2.rightBumperWasPressed())
+                else if (gamepad2.xWasReleased())
                     intake.setPower(0);
                 break;
         }
