@@ -71,7 +71,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 3000;
+    double LAUNCHER_TARGET_VELOCITY = 3000;
     final double LAUNCHER_MIN_VELOCITY = 1075;
 
     // Declare OpMode members.
@@ -220,6 +220,12 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
          */
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
+        if (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_TARGET_VELOCITY += 10;
+        }
+        if (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_TARGET_VELOCITY -= 10;
+        }
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
