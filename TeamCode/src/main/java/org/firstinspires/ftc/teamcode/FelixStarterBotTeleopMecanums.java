@@ -43,6 +43,8 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
     private PinpointLocalizer localizer = null;
+    private Pose2d initialRobotPose = new Pose2d(48, 9.3, Math.toRadians(90));
+    private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
 
     ElapsedTime feederTimer = new ElapsedTime();
 
