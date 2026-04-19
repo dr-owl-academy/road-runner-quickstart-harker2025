@@ -22,6 +22,10 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     final double FEED_TIME_SECONDS = 0.40; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = -6000.0;
+    final double RED_X = 0;
+    final double RED_Y = 0;
+    final double BLUE_X = 0;
+    final double BLUE_Y = 0;
 
 
      double LAUNCHER_TARGET_VELOCITY = 1125;
@@ -216,6 +220,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("intake Speed",intake.getPower());
         telemetry.addData("min launch velocity",LAUNCHER_MIN_VELOCITY);
         telemetry.addData("target launch velocity",LAUNCHER_TARGET_VELOCITY);
+        telemetry.update();
 
         switch (currentLaunchState) {
             case IDLE:
