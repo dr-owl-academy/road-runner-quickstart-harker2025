@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -16,16 +18,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 
-@TeleOp(name = "StarterBotTeleopMecanum", group = "StarterBot")
+@TeleOp(name = "FelixStarterBotTeleopMecanum", group = "StarterBot")
 //@Disabled
 public class FelixStarterBotTeleopMecanums extends OpMode {
     final double FEED_TIME_SECONDS = 0.40; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = -6000.0;
-    final double RED_X = 0;
-    final double RED_Y = 0;
-    final double BLUE_X = 0;
-    final double BLUE_Y = 0;
+    final double BLUE_GOAL_X = 14.5;
+    final double BLUE_GOAL_Y = 129.5;
+    final double RED_GOAL_X = 130;
+    final double RED_GOAL_Y = 130;
 
 
      double LAUNCHER_TARGET_VELOCITY = 1125;
@@ -40,17 +42,16 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
+    private PinpointLocalizer localizer = null;
 
     ElapsedTime feederTimer = new ElapsedTime();
 
 
     private enum LaunchState {
         IDLE,
-        INTAKE,
-        STOP_INTAKE,
         SPIN_UP,
-        FEED,
-        STOP_FEED
+        LAUNCH,
+        LAUNCHING
     }
 
     private LaunchState currentLaunchState;
@@ -163,45 +164,40 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
+        mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
-        double forward =  (1*gamepad1.right_stick_y);
-        double strafe = -1*(gamepad1.right_stick_x);
-        double turn = gamepad1.left_stick_x;
-
-        leftFrontPower = ((forward + strafe + turn) / 2);
-        rightFrontPower = ((forward - strafe - turn) / 2);
-        leftBackPower = ((forward - strafe + turn) / 2);
-        rightBackPower = ((forward + strafe - turn) / 2);
-
-        leftFrontDrive.setPower(leftFrontPower);
-        rightFrontDrive.setPower(rightFrontPower);
-        leftBackDrive.setPower(leftBackPower);
-        rightBackDrive.setPower(rightBackPower);
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-        if (gamepad1.y) {
+        if (gamepad2.y) {
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad1.b) { // stop flywheel
+        } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
         }
         while (gamepad2.dpadUpWasPressed()) {
-            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + 100;
-            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + 100;
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + 10;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + 10;
 
         }
         while (gamepad2.dpadDownWasPressed()) {
-            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - 100;
-            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - 100;
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - 10;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - 10;
 
-            }
-
-
+        }
 
         /*
          * Now we call our "Launch" function.
          */
+        launch(gamepad2.rightBumperWasPressed());
+
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
+        //Distance to BLUE goal
+        double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
+        //Distance to BLUE goal
+        double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
+        // intake test
 
 
         /*
@@ -209,94 +205,91 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
          */
         telemetry.addData("State", currentLaunchState);
         telemetry.addData("motorSpeed", launcher.getVelocity());
-        telemetry.addData("left stick x", gamepad1.left_stick_x);
-        telemetry.addData("left stick y", gamepad1.left_stick_y);
-        telemetry.addData("right stick x", gamepad1.right_stick_x);
-        telemetry.addData("right stick y", gamepad1.right_stick_y);
-        telemetry.addData("left front power", leftFrontPower);
-        telemetry.addData("right front power", rightFrontPower);
-        telemetry.addData("left back power", leftBackPower);
-        telemetry.addData("right back power", rightBackPower);
-        telemetry.addData("intake Speed",intake.getPower());
-        telemetry.addData("min launch velocity",LAUNCHER_MIN_VELOCITY);
-        telemetry.addData("target launch velocity",LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("Intake Power", intake.getPower());
+        telemetry.addData("launchSpeedMIN",LAUNCHER_MIN_VELOCITY);
+        telemetry.addData("launchSpeedTARGET",LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("Pose", "%.1f, %.1f, %.1f", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
+        telemetry.addData("Velocity", "%.1f, %.1f, %.1f", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.addData("Blue goal distance", distToBlue);
+        telemetry.addData("Red goal distance", distToRed);
         telemetry.update();
 
+    }
+
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
+
+    void mecanumDrive(double forward, double strafe, double rotate){
+
+        /* the denominator is the largest motor power (absolute value) or 1
+         * This ensures all the powers maintain the same ratio,
+         * but only if at least one is out of the range [-1, 1]
+         */
+        double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
+
+        leftFrontPower = (forward + strafe + rotate) / 2.25;
+        rightFrontPower = (forward - strafe - rotate) / 2.25;
+        leftBackPower = (forward - strafe + rotate) / 2.25;
+        rightBackPower = (forward + strafe - rotate) / 2.25 ;
+
+        leftFrontDrive.setPower(leftFrontPower);
+        rightFrontDrive.setPower(rightFrontPower);
+        leftBackDrive.setPower(leftBackPower);
+        rightBackDrive.setPower(rightBackPower);
+
+    }
+
+    void launch(boolean shotRequested) {
         switch (currentLaunchState) {
             case IDLE:
-                // If the user presses the "a" button, and we are in the IDLE state,
-                // we transition to the Intake state.
-                if (gamepad2.left_bumper) {
-                    currentLaunchState = LaunchState.INTAKE;
-                }
-                break;
-            case INTAKE:
-                //The intake motor starts up and doesn't stop unless it is in STOP_INTAKE
-                intake.setPower(FULL_SPEED);
-                if (gamepad2.a) {
+                if (shotRequested) {
                     currentLaunchState = LaunchState.SPIN_UP;
+                    intake.setPower(0);
                 }
-                if (gamepad2.right_bumper) {
-                    currentLaunchState = LaunchState.STOP_INTAKE;
+                if (gamepad2.left_bumper) {
+                    intake.setPower(1);
+                } else if (gamepad2.leftBumperWasReleased()) {
+                    intake.setPower(0);
                 }
-            case STOP_INTAKE:
-                //Stops the intake and sets launch state to idle
-                intake.setPower(STOP_SPEED);
-                currentLaunchState = LaunchState.IDLE;
+                if(gamepad2.xWasPressed()) {
+                    intake.setPower(-1);
+                } else if (gamepad2.xWasReleased()) {
+                    intake.setPower(0);
+                }
 
+                break;
             case SPIN_UP:
-                // In this state, we set the launcher motor to our target velocity.
+                intake.setPower(0);
                 launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-
-                // We can check the current velocity of the motor to see if it has reached
-                // our minimum velocity. If it has, we transition to the FEED state.
-                if(launcher.getVelocity() >= LAUNCHER_MIN_VELOCITY) {
-                    currentLaunchState = LaunchState.FEED;
-                }
-                if (gamepad2.right_bumper) {
-                   intake.setPower(STOP_SPEED);
+                if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
+                    currentLaunchState = LaunchState.LAUNCH;
                 }
                 break;
-
-            case FEED:
-                // In this state, we turn on the feeder servos to push the note into the launcher.
+            case LAUNCH:
                 leftFeeder.setPower(FULL_SPEED);
                 rightFeeder.setPower(FULL_SPEED);
-                // We also reset our timer so we can time how long we run the feeder servos.
                 feederTimer.reset();
-                if (gamepad2.right_bumper) {
-                    intake.setPower(STOP_SPEED);
-                }
-                currentLaunchState = LaunchState.STOP_FEED;
+                currentLaunchState = LaunchState.LAUNCHING;
                 break;
-
-            case STOP_FEED:
-                // In this state, we wait for the feeder timer to expire.
-                if(feederTimer.seconds() >= FEED_TIME_SECONDS) {
-                    // When the timer expires, we stop the feeder servos.
+            case LAUNCHING:
+                if (feederTimer.seconds() > FEED_TIME_SECONDS) {
+                    currentLaunchState = LaunchState.IDLE;
                     leftFeeder.setPower(STOP_SPEED);
                     rightFeeder.setPower(STOP_SPEED);
-                    // We also turn off the launcher motor.
-                    launcher.setVelocity(0);
-                    // And we transition back to the IDLE state.
-                    currentLaunchState = LaunchState.IDLE;
-                    if (gamepad2.right_bumper) {
-                        currentLaunchState = LaunchState.STOP_INTAKE;
-                    }
                 }
                 break;
         }
-
-
-        /*
-         * Code to run ONCE after the driver hits STOP
-         */
-
-
     }
+    double velocityFromDistance(double x) {
+        //Only clamp minimum (no upper clamp)
+        x = Math.max(18, x);
 
-    @Override
-    public void stop() {
-
+        return 0.000764989 * x * x * x
+                -0.216997 * x * x
+                +24.42148 * x
+                + 721.27595;
     }
 }
+
+
