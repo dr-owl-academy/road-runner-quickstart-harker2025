@@ -6,7 +6,6 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -43,7 +42,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
     private PinpointLocalizer localizer = null;
-    private Pose2d initialRobotPose = new Pose2d(48, 9.3, Math.toRadians(90));
+    private Pose2d initialRobotPose = new Pose2d(9.3, 48, Math.toRadians(90));
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
 
     ElapsedTime feederTimer = new ElapsedTime();
@@ -57,6 +56,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     }
 
     private LaunchState currentLaunchState;
+
 
     // Set up a variable for each drive wheel to save power level for telemetry
     double leftFrontPower;
@@ -124,6 +124,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         rightFeeder.setPower(STOP_SPEED);
 
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(300, 0, 0, 10));
+        localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK, initialRobotPose);
 
         /*
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
@@ -135,6 +136,8 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
          * Tell the driver that initialization is complete.
          */
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Initial Pose", "(%.2f, %.2f, %.2f rad)", initialRobotPose.position.x, initialRobotPose.position.y, initialRobotPose.heading.toDouble());
+        telemetry.update();
     }
 
     /*
@@ -287,10 +290,10 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         //Only clamp minimum (no upper clamp)
         x = Math.max(18, x);
 
-        return 0.000764989 * x * x * x
-                -0.216997 * x * x
-                +24.42148 * x
-                + 721.27595;
+        return 0.000556157 * x * x* x
+                -0.174432 * x *x
+                +22.77848*x
+                +731.43596;
     }
 }
 
