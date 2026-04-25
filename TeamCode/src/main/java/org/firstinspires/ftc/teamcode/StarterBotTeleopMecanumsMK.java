@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import
-        static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -12,7 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-/*
+/*h
  * This file includes a teleop (driver-controlled) file for the goBILDA® StarterBot for the
  * 2025-2026 FIRST® Tech Challenge season DECODE™. It leverages a differential/Skid-Steer
  * system for robot mobility, one high-speed motor driving two "launcher wheels", and two servos
@@ -27,12 +29,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
  */
 
-@TeleOp(name = "StarterBotTeleopMecanums", group = "StarterBot")
+@TeleOp(name = "StarterBotTeleopMecanumsNathan", group = "StarterBot")
 //@Disabled
 public class StarterBotTeleopMecanumsMK extends OpMode {
     final double FEED_TIME_SECONDS = 0.40; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    final double FULL_SPEED = -5000.0;
+    final double FULL_SPEED = 5250.0;
+    private static final double BLUE_GOAL_X = 14.5;
+    private static final double BLUE_GOAL_Y = 129.5;
+    private static final double RED_GOAL_X = 130;
+    private static final double RED_GOAL_Y = 130;
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -40,8 +46,7 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    final double LAUNCHER_TARGET_VELOCITY = 1125;
-    final double LAUNCHER_MIN_VELOCITY = 1075;
+
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -51,7 +56,10 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
     private DcMotorEx launcher = null;
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
-
+    private DcMotor intake = null;
+    private PinpointLocalizer localizer = null;
+    private Pose2d initialRobotPose = new Pose2d(14.5, 129.5, Math.toRadians(-45));
+    private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
     ElapsedTime feederTimer = new ElapsedTime();
 
     /*
@@ -84,6 +92,11 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
     double rightFrontPower;
     double leftBackPower;
     double rightBackPower;
+    double LAUNCHER_TARGET_VELOCITY = 1750;
+    double LAUNCHER_MIN_VELOCITY = 1750;
+    double INCREASE_VALUE = 10;
+    private static final double kOffset = 0;
+
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -100,10 +113,12 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
         leftFrontDrive = hardwareMap.get(DcMotor.class, "leftFront");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightFront");
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftBack");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "rightBack  ");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "rightBack");
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
+        intake = hardwareMap.get(DcMotor.class,"intake");
+
 
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
@@ -149,12 +164,14 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
          * both work to feed the ball into the robot.
          */
-        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        rightFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK,initialRobotPose);
         /*
          * Tell the driver that initialization is complete.
          */
         telemetry.addData("Status", "Initialized");
+        telemetry.addData("Initial Pose", "(%.2f, %.2f, %.2f rad)", initialRobotPose.position.x, initialRobotPose.position.y, initialRobotPose.heading.toDouble());
+        telemetry.update();
     }
 
     /*
@@ -162,6 +179,7 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
      */
     @Override
     public void init_loop() {
+
     }
 
     /*
@@ -191,22 +209,56 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-        if (gamepad1.y) {
-            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad1.b) { // stop flywheel
-            launcher.setVelocity(STOP_SPEED);
+        /*
+        while (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
+            if (gamepad2.dpadUpWasPressed()) {
+                new SleepAction(0.3);
+            }
+        }
+        // while (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
+            if (gamepad2.dpadDownWasPressed()) {
+                new SleepAction(0.3);
+            }
         }
 
         /*
          * Now we call our "Launch" function.
          */
-        launch(gamepad1.rightBumperWasPressed());
+        launch(gamepad2.rightBumperWasPressed());
+
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
+        //Distance to BLUE goal
+        double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
+        //Distance to BLUE goal
+        double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
+        // intake test
+
+        if (gamepad2.y) {
+            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+            LAUNCHER_MIN_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+        } else if (gamepad2.b) { // stop flywheel
+            launcher.setVelocity(STOP_SPEED);
+        }
 
         /*
          * Show the state and motor powers
          */
         telemetry.addData("State", launchState);
         telemetry.addData("motorSpeed", launcher.getVelocity());
+        telemetry.addData("Intake Power", intake.getPower());
+        telemetry.addData("launchSpeedMIN",LAUNCHER_MIN_VELOCITY);
+        telemetry.addData("launchSpeedTARGET",LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("Pose", "%.1f, %.1f, %.1f", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
+        telemetry.addData("Velocity", "%.1f, %.1f, %.1f", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.addData("Blue goal distance", distToBlue);
+        telemetry.addData("Red goal distance", distToRed);
+        telemetry.update();
 
     }
 
@@ -225,10 +277,10 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
          */
         double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
 
-        leftFrontPower = (forward + strafe + rotate) / denominator;
-        rightFrontPower = (forward - strafe - rotate) / denominator;
-        leftBackPower = (forward - strafe + rotate) / denominator;
-        rightBackPower = (forward + strafe - rotate) / denominator;
+        leftFrontPower = (forward + strafe + rotate) / 2.25;
+        rightFrontPower = (forward - strafe - rotate) / 2.25;
+        leftBackPower = (forward - strafe + rotate) / 2.25;
+        rightBackPower = (forward + strafe - rotate) / 2.25 ;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
@@ -242,9 +294,22 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
             case IDLE:
                 if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
+                    intake.setPower(0);
                 }
+                if (gamepad2.left_bumper) {
+                    intake.setPower(1);
+                } else if (gamepad2.leftBumperWasReleased()) {
+                    intake.setPower(0);
+                }
+                if(gamepad2.xWasPressed()) {
+                    intake.setPower(-1);
+                } else if (gamepad2.xWasReleased()) {
+                    intake.setPower(0);
+                }
+
                 break;
             case SPIN_UP:
+                intake.setPower(0);
                 launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
                     launchState = LaunchState.LAUNCH;
@@ -264,5 +329,14 @@ public class StarterBotTeleopMecanumsMK extends OpMode {
                 }
                 break;
         }
+    }
+    double velocityFromDistance(double x) {
+        //Only clamp minimum (no upper clamp)
+        x = Math.max(18, x);
+
+        return -0.000744119 * x * x * x
+                +0.228351 * x * x
+                -15.52643 * x
+                +1716.40744;
     }
 }
