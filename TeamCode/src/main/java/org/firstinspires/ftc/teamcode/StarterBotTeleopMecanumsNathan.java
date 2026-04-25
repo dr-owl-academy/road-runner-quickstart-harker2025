@@ -57,7 +57,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
-    private PinpointLocalizer localizer = null;
+    private NathanPinpointLocalizer localizer = null;
     private Pose2d initialRobotPose = new Pose2d(14.5, 129.5, Math.toRadians(-45));
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
     ElapsedTime feederTimer = new ElapsedTime();
@@ -95,7 +95,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     double LAUNCHER_TARGET_VELOCITY = 1750;
     double LAUNCHER_MIN_VELOCITY = 1750;
     double INCREASE_VALUE = 10;
-    private static final double kOffset = 0;
+    private static final double kOffset = 100;
 
 
     /*
@@ -165,7 +165,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
          * both work to feed the ball into the robot.
          */
         rightFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
-        localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK,initialRobotPose);
+        localizer = new NathanPinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK,initialRobotPose);
         /*
          * Tell the driver that initialization is complete.
          */
@@ -238,9 +238,10 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
         double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
         // intake test
 
+        LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+        LAUNCHER_MIN_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+
         if (gamepad2.y) {
-            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
-            LAUNCHER_MIN_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
