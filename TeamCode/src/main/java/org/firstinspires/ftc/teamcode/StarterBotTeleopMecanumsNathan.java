@@ -240,6 +240,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
 
         if (gamepad2.y) {
             LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+            LAUNCHER_MIN_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
