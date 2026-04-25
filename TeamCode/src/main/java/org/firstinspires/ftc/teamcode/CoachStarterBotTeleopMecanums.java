@@ -72,6 +72,8 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
     private static final double RED_GOAL_X = 130;
     private static final double RED_GOAL_Y = 130;
 
+    private static final double kOffset = 0;
+
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
      * to read the current speed of the motor and apply more or less power to keep it at a constant
@@ -243,25 +245,24 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
          */
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
+
         /*
          * TARGET VELOCITY ADJUSTMENT LOGIC using built-in edge detection to change speed by 10 per press.
          */
+       /*
         if (gamepad2.dpadUpWasPressed()) {
             LAUNCHER_TARGET_VELOCITY += 10;
         }
         if (gamepad2.dpadDownWasPressed()) {
             LAUNCHER_TARGET_VELOCITY -= 10;
         }
+        */
+
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
 
-        if (gamepad2.y) {
-            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad2.b) { // stop flywheel
-            launcher.setVelocity(STOP_SPEED);
-        }
 
 
         /*
@@ -276,6 +277,12 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
 
         // Distance to RED goal
         double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
+        if (gamepad2.y) {
+            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToRed) + kOffset;
+            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+        } else if (gamepad2.b) { // stop flywheel
+            launcher.setVelocity(STOP_SPEED);
+        }
 
         /*
          * Show the state and motor powers
