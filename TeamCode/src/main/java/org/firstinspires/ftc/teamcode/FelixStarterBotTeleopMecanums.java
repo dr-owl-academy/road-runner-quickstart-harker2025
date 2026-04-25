@@ -23,10 +23,12 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     final double FEED_TIME_SECONDS = 0.40; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
     final double FULL_SPEED = -6000.0;
-    final double BLUE_GOAL_X = 14.5;
-    final double BLUE_GOAL_Y = 129.5;
-    final double RED_GOAL_X = 130;
-    final double RED_GOAL_Y = 130;
+    private static final double BLUE_GOAL_X = 14.5;
+    private static final double BLUE_GOAL_Y = 129.5;
+    private static final double RED_GOAL_X = 130;
+    private static final double RED_GOAL_Y = 130;
+    private static final double kOffset = 5;
+    
 
 
      double LAUNCHER_TARGET_VELOCITY = 1125;
@@ -175,21 +177,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-        if (gamepad2.y) {
-            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad2.b) { // stop flywheel
-            launcher.setVelocity(STOP_SPEED);
-        }
-        while (gamepad2.dpadUpWasPressed()) {
-            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + 10;
-            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + 10;
 
-        }
-        while (gamepad2.dpadDownWasPressed()) {
-            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - 10;
-            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - 10;
-
-        }
 
         /*
          * Now we call our "Launch" function.
@@ -204,7 +192,22 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
         // intake test
 
+        if (gamepad2.y) {
+            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+        } else if (gamepad2.b) { // stop flywheel
+            launcher.setVelocity(STOP_SPEED);
+        }
+        while (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + 10;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + 10;
 
+        }
+        while (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - 10;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - 10;
+
+        }
         /*
          * Show the state and motor powers
          */
@@ -289,10 +292,10 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     double velocityFromDistance(double x) {
         // Only clamp minimum (no upper clamp)
         x = Math.max(18, x);
-        return 0.000556157 * x * x* x
-                -0.174432 * x *x
-                +22.77848*x
-                +731.43596;
+        return 0.000764989 * x * x * x
+                -0.216997 * x * x
+                +24.42148 * x
+                + 721.27595;
     }
 }
 
