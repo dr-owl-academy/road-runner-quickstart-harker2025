@@ -72,6 +72,8 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
     private static final double RED_GOAL_X = 130;
     private static final double RED_GOAL_Y = 130;
 
+    private static final double kOffset = 0;
+
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
      * to read the current speed of the motor and apply more or less power to keep it at a constant
@@ -276,6 +278,13 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
 
         // Distance to RED goal
         double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
+
+        if (gamepad2.y) {
+            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToRed) + kOffset;
+            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+        } else if (gamepad2.b) { // stop flywheel
+            launcher.setVelocity(STOP_SPEED);
+        }
 
         /*
          * Show the state and motor powers
