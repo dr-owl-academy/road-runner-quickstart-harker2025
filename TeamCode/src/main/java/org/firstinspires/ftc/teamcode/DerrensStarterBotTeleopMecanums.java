@@ -61,7 +61,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @TeleOp(name = "DerrensStarterBotTeleopMecanums", group = "StarterBot")
-//@Disabled
+
 public class DerrensStarterBotTeleopMecanums extends OpMode {
     final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
@@ -76,6 +76,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     double LAUNCHER_TARGET_VELOCITY = 1500;
     double LAUNCHER_MIN_VELOCITY = 500;
 
+    double kOffset = 0;
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
     private DcMotor rightFrontDrive = null;
@@ -86,11 +87,13 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
     private PinpointLocalizer localizer = null;
-
-    // Change this to your desired starting pose: x, y in inches, heading in radians
     private Pose2d initialRobotPose = new Pose2d(96, 15, 90);
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
+    private static final double BLUE_GOAL_X = 14.5;
+    private static final double BLUE_GOAL_Y = 129.5;
 
+    private static final double RED_GOAL_X = 130;
+    private static final double RED_GOAL_Y = 130;
 
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -238,18 +241,25 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         /*
          * TARGET VELOCITY ADJUSTMENT LOGIC using built-in edge detection to change speed by 10 per press.
          */
-        if (gamepad2.dpadUpWasPressed()) {
-            LAUNCHER_TARGET_VELOCITY += 10;
+      /*  if (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_TARGET_VELOCITY += 20;
         }
         if (gamepad2.dpadDownWasPressed()) {
-            LAUNCHER_TARGET_VELOCITY -= 10;
+            LAUNCHER_TARGET_VELOCITY -= 20;
         }
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
+
+        double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
+
+        double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
 
         if (gamepad2.y) {
+            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToRed) + kOffset;
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
@@ -261,20 +271,20 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
          */
         launch(gamepad2.rightBumperWasPressed());
 
-        PoseVelocity2d currentVelocity = localizer.update();
-        Pose2d currentPose = localizer.getPose();
 
         /*
          * Show the state and motor powers
          */
-        telemetry.addData("State", launchState);
-        telemetry.addData(" Launcher Speed", launcher.getVelocity());
-        telemetry.addData("Launcher Min Velocity", LAUNCHER_MIN_VELOCITY);
-        telemetry.addData("Intake Power", intake.getPower());
-        telemetry.addData("Launcher Target Velocity", LAUNCHER_TARGET_VELOCITY);
-        telemetry.addData("Launcher Actual Speed", launcher.getVelocity());
-        telemetry.addData("Pose", "(%.1f, %.1f, %.1f)", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
-        telemetry.addData("Velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.addData("state", launchState);
+        telemetry.addData("launcher speed", launcher.getVelocity());
+        telemetry.addData("intake power", intake.getPower());
+        telemetry.addData("launcher min velocity", LAUNCHER_MIN_VELOCITY);
+        telemetry.addData("launcher target velocity", LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("launcher actual speed", launcher.getVelocity());
+        telemetry.addData("pose", "(%.1f, %.1f, %.1f)", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
+        telemetry.addData("velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.addData("blue goal distance", distToBlue);
+        telemetry.addData("red goal distance", distToRed);
         telemetry.update();
 
     }
@@ -286,7 +296,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     public void stop() {
     }
 
-    void mecanumDrive(double forward, double strafe, double rotate){
+    void mecanumDrive(double forward, double strafe, double rotate) {
 
         /* the denominator is the largest motor power (absolute value) or 1
          * This ensures all the powers maintain the same ratio,
@@ -309,10 +319,9 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
-                if(gamepad2.left_bumper || gamepad2.left_trigger > 0.1) {
+                if (gamepad2.left_bumper || gamepad2.left_trigger > 0.1) {
                     launchState = LaunchState.INTAKE;
-                }
-                else if (shotRequested) {
+                } else if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
                 }
                 break;
@@ -350,5 +359,15 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
                 }
                 break;
         }
+    }
+
+
+    double velocityFromDistance(double x) {
+
+        x = Math.max(18, x);
+
+        return -0.000810659 * x * x * x
+                + 0.216733 * x * x
+                - 13.70732 * x;
     }
 }
