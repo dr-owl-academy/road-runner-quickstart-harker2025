@@ -248,6 +248,7 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
         /*
          * TARGET VELOCITY ADJUSTMENT LOGIC using built-in edge detection to change speed by 10 per press.
          */
+        /*
         if (gamepad2.dpadUpWasPressed()) {
             LAUNCHER_TARGET_VELOCITY += 10;
         }
@@ -258,14 +259,6 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-
-        if (gamepad2.y) {
-            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad2.b) { // stop flywheel
-            launcher.setVelocity(STOP_SPEED);
-        }
-
-
         /*
          * Now we call our "Launch" function.
          */
@@ -278,9 +271,8 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
 
         // Distance to RED goal
         double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
-
+        LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToRed) + kOffset;
         if (gamepad2.y) {
-            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToRed) + kOffset;
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
