@@ -72,6 +72,9 @@ public class AdrianStarterbotTeleop extends OpMode {
 
     private static final double RED_GOAL_X = 130;
     private static final double RED_GOAL_Y = 130;
+    private static final double koffset = 0;
+
+
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -247,18 +250,24 @@ public class AdrianStarterbotTeleop extends OpMode {
         /*
          * TARGET VELOCITY ADJUSTMENT LOGIC using built-in edge detection to change speed by 10 per press.
          */
-        if (gamepad2.dpadUpWasPressed()) {
-            LAUNCHER_TARGET_VELOCITY += 10;
-        }
-        if (gamepad2.dpadDownWasPressed()) {
-            LAUNCHER_TARGET_VELOCITY -= 10;
-        }
+        //if (gamepad2.dpadUpWasPressed()) {
+          //  LAUNCHER_TARGET_VELOCITY += 10;
+        //}
+        //if (gamepad2.dpadDownWasPressed()) {
+          //  LAUNCHER_TARGET_VELOCITY -= 10;
+        //}
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
+        // Distance to BLUE goal
+        double Bluedist = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
+
+        // Distance to RED goal
+        double Redist = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
 
         if (gamepad2.y) {
+            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(Bluedist) + koffset;
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
@@ -272,11 +281,7 @@ public class AdrianStarterbotTeleop extends OpMode {
 
         PoseVelocity2d currentVelocity = localizer.update();
         Pose2d currentPose = localizer.getPose();
-        // Distance to BLUE goal
-        double Bluedist = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
 
-        // Distance to RED goal
-        double Redist = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
 
         /*
          * Show the state and motor powers
@@ -368,7 +373,7 @@ public class AdrianStarterbotTeleop extends OpMode {
     }
 
     double velocityFromDistance(double x) {
-        // Only clamp minimum (no upper clamp)
+
         x = Math.max(18, x);
 
         return -0.000744119 * x * x * x
