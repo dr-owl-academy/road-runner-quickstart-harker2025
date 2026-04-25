@@ -75,6 +75,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+
 
 /*
  * This file includes a teleop (driver-controlled) file for the goBILDA® StarterBot for the
@@ -104,7 +107,7 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    double launcherTargetVelocity = 5000;
+    double launcherTargetVelocity = 1500;
     final double LAUNCHER_MIN_VELOCITY = 1750;
     boolean lastDpadUp = false;
     boolean lastDpadDown = false;
@@ -117,10 +120,12 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
     private DcMotorEx launcher = null;
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
-
     private DcMotor intake = null;
 
-    
+    private static final double RED_GOAL_X = 130.0;
+    private static final double RED_GOAL_Y = 130.0;
+
+    private PinpointLocalizer localizer = null;
 
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -195,6 +200,9 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(25, 0, 7, 13.5));
 
+        // Initialize the localizer
+        // TODO: Replace 1.0 with your actual inPerTick value
+        localizer = new PinpointLocalizer(hardwareMap, 1.0, new Pose2d(0, 0, 0));
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData(">", "Robot Ready.  Press Play.");
@@ -219,6 +227,9 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
      */
     @Override
     public void loop() {
+        // Update the localizer
+        localizer.update();
+
         // Setup a variable for each drive axis to save power level for telemetry
         double leftStickY = -gamepad1.left_stick_y;  //Remember, this is reversed!
         double leftStickX = gamepad1.left_stick_x;
@@ -284,6 +295,19 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
         }
         lastDpadDown = gamepad2.dpad_down;
 
+        // Calculate distance to goal
+        Pose2d currentPose = localizer.getPose();
+        double distToGoal = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
+
+        // Auto-Aim Velocity (Press Left Bumper on Gamepad 2 to use the cubic regression)
+        if (gamepad2.left_bumper) {
+            // y = -0.000810659x^3 + 0.216733x^2 - 13.70732x + 1783.11384
+            launcherTargetVelocity = (-0.000810659 * Math.pow(distToGoal, 3))
+                    + (0.216733 * Math.pow(distToGoal, 2))
+                    - (13.70732 * distToGoal)
+                    + 1783.11384;
+        }
+
         switch (currentLaunchState) {
             case IDLE:
                 // If the user presses the "a" button, and we are in the IDLE state,
@@ -334,8 +358,8 @@ public class StarterBotTeleOpMecanumAaron extends OpMode {
         telemetry.addData("Launcher State", currentLaunchState);
         telemetry.addData("Target Velocity", launcherTargetVelocity);
         telemetry.addData("Launcher Velocity", launcher.getVelocity());
-
-
+        telemetry.addData("Pose", localizer.getPose());
+        telemetry.addData("Dist to Goal", distToGoal);
     }
 
     /*
