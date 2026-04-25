@@ -256,7 +256,10 @@ public class AdrianStarterbotTeleop extends OpMode {
         //if (gamepad2.dpadDownWasPressed()) {
           //  LAUNCHER_TARGET_VELOCITY -= 10;
         //}
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
         /*
+
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
@@ -279,8 +282,7 @@ public class AdrianStarterbotTeleop extends OpMode {
          */
         launch(gamepad2.rightBumperWasPressed());
 
-        PoseVelocity2d currentVelocity = localizer.update();
-        Pose2d currentPose = localizer.getPose();
+
 
 
         /*
