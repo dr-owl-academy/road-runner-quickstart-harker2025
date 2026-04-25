@@ -70,6 +70,6 @@ public final class NathanPinpointLocalizer implements Localizer {
 
             return new PoseVelocity2d(robotVelocity, driver.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS));
         }
-        return new PoseVelocity2d(new Vector2d(0, 0), 0);
+        return new PoseVelocity2d(new Vector2d(14.5, 129.5), -45);
     }
 }
