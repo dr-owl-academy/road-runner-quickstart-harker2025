@@ -17,8 +17,8 @@ import java.util.Objects;
 public final class PinpointLocalizer implements Localizer {
     public static class Params {
         // TODO: measure the distance between the odometry pods and the center of the robot in mm then convert to ticks
-        public double parYTicks = 1392.5742516; // y position of the parallel encoder (in tick units)
-        public double perpXTicks = 490.72774104; // x position of the perpendicular encoder (in tick units)
+        public double parYTicks = 862.0892748; // y position of the parallel encoder (in tick units)
+        public double perpXTicks = 530.5164768; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
@@ -39,7 +39,7 @@ public final class PinpointLocalizer implements Localizer {
         driver.setOffsets(mmPerTick * PARAMS.parYTicks, mmPerTick * PARAMS.perpXTicks, DistanceUnit.MM);
 
         // TODO: reverse encoder directions if needed
-        initialParDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
+        initialParDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
         initialPerpDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
 
         driver.setEncoderDirections(initialParDirection, initialPerpDirection);

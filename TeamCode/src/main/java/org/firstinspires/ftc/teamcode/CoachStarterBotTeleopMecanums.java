@@ -97,7 +97,7 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
     private PinpointLocalizer localizer = null;
 
     // Change this to your desired starting pose: x, y in inches, heading in radians
-    private Pose2d initialRobotPose = new Pose2d(48, 9.3, Math.toRadians(90));
+    private Pose2d initialRobotPose = new Pose2d(48, 7.5, Math.toRadians(90));
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
 
 
