@@ -198,7 +198,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
         }
-        while (gamepad2.dpadUpWasPressed()) {
+        /*while (gamepad2.dpadUpWasPressed()) {
             LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + 10;
             LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + 10;
 
@@ -208,6 +208,8 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
             LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - 10;
 
         }
+        */
+
         /*
          * Show the state and motor powers
          */
