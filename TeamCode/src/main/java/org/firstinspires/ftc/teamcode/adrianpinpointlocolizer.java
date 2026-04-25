@@ -17,8 +17,8 @@ import java.util.Objects;
 @Config
 public final class adrianpinpointlocolizer implements Localizer {
     public static class Params {
-        public double parYTicks = 0.0; // y position of the parallel encoder (in tick units)
-        public double perpXTicks = 0.0; // x position of the perpendicular encoder (in tick units)
+        public double parYTicks = 1392.5742516; // y position of the parallel encoder (in tick units)
+        public double perpXTicks = 490.72774104; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
@@ -29,7 +29,7 @@ public final class adrianpinpointlocolizer implements Localizer {
     private Pose2d txWorldPinpoint;
     private Pose2d txPinpointRobot = new Pose2d(0, 0, 0);
 
-    public PinpointLocalizer(HardwareMap hardwareMap, double inPerTick, Pose2d initialPose) {
+    public adrianpinpointlocolizer(HardwareMap hardwareMap, double inPerTick, Pose2d initialPose) {
         // TODO: make sure your config has a Pinpoint device with this name
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         driver = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
