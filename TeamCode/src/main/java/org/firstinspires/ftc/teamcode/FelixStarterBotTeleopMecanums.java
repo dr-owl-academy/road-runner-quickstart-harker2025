@@ -33,6 +33,8 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
 
      double LAUNCHER_TARGET_VELOCITY = 1125;
      double LAUNCHER_MIN_VELOCITY = 1075;
+     double distToGoal = 0;
+     double goal = 0;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -147,6 +149,14 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
      */
     @Override
     public void init_loop() {
+        // This lets the driver choose what goal we go to
+        while (gamepad2.dpadLeftWasPressed()) {
+            goal = 1;
+
+        }
+        while (gamepad2.dpadLeftWasPressed()) {
+            goal = 2;
+        }
     }
 
     /*
@@ -191,9 +201,14 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         //Distance to BLUE goal
         double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
         // intake test
+        if (goal == 1){
+            distToGoal = distToRed;
+        } else if (goal == 2) {
+            distToGoal = distToBlue;
+        }
 
         if (gamepad2.y) {
-            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToGoal) + kOffset;
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else if (gamepad2.b) { // stop flywheel
             launcher.setVelocity(STOP_SPEED);
