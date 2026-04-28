@@ -76,7 +76,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     double LAUNCHER_TARGET_VELOCITY = 1500;
     double LAUNCHER_MIN_VELOCITY = 500;
 
-    double kOffset = 0;
+    double kOffset = 50;
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
     private DcMotor rightFrontDrive = null;
@@ -87,7 +87,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
     private PinpointLocalizer localizer = null;
-    private Pose2d initialRobotPose = new Pose2d(96, 15, 90);
+    private Pose2d initialRobotPose = new Pose2d(96, 9.3, Math.toRadians(90));
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
     private static final double BLUE_GOAL_X = 14.5;
     private static final double BLUE_GOAL_Y = 129.5;
@@ -265,7 +265,6 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
             launcher.setVelocity(STOP_SPEED);
         }
 
-
         /*
          * Now we call our "Launch" function.
          */
@@ -304,10 +303,10 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
          */
         double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
 
-        leftFrontPower = (forward + strafe + rotate) / denominator;
-        rightFrontPower = (forward - strafe - rotate) / denominator;
-        leftBackPower = (forward - strafe + rotate) / denominator;
-        rightBackPower = (forward + strafe - rotate) / denominator;
+        leftFrontPower = (forward + strafe + rotate) / 2.25;
+        rightFrontPower = (forward - strafe - rotate) / 2.25;
+        leftBackPower = (forward - strafe + rotate) / 2.25;
+        rightBackPower = (forward + strafe - rotate) / 2.25;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
@@ -366,8 +365,9 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
 
         x = Math.max(18, x);
 
-        return -0.000810659 * x * x * x
-                + 0.216733 * x * x
-                - 13.70732 * x;
+        return -0.000744119 * x * x * x
+                +0.228351 * x * x
+                -15.52643 * x
+                +1716.40744;
     }
 }
