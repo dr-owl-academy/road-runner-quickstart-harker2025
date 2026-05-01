@@ -72,7 +72,7 @@ public class AdrianStarterbotTeleop extends OpMode {
 
     private static final double RED_GOAL_X = 130;
     private static final double RED_GOAL_Y = 130;
-    private static final double koffset = 0;
+    private static final double koffset = 10;
 
 
 
@@ -96,7 +96,7 @@ public class AdrianStarterbotTeleop extends OpMode {
     private DcMotor intake = null;
 
     //Coach: declare a localizer using PinpointLocalizer so that you can call the methods in that java class
-    private PinpointLocalizer localizer = null;
+    private adrianpinpointlocolizer localizer = null;
 
     // Change this to your desired starting pose: x, y in inches, heading in radians
     private Pose2d initialRobotPose = new Pose2d(14.5, 129.5, Math.toRadians(-45));
@@ -207,7 +207,7 @@ public class AdrianStarterbotTeleop extends OpMode {
         rightFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // coach: Initialize PinpointLocalizer with starting pose
-        localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK, initialRobotPose);
+        localizer = new adrianpinpointlocolizer(hardwareMap, PINPOINT_IN_PER_TICK, initialRobotPose);
 
         /*
          * Tell the driver that initialization is complete.
@@ -276,7 +276,6 @@ public class AdrianStarterbotTeleop extends OpMode {
             launcher.setVelocity(STOP_SPEED);
         }
 
-
         /*
          * Now we call our "Launch" function.
          */
@@ -286,6 +285,7 @@ public class AdrianStarterbotTeleop extends OpMode {
 
 
         /*
+
          * Show the state and motor powers
          */
         telemetry.addData("State", launchState);
@@ -316,10 +316,10 @@ public class AdrianStarterbotTeleop extends OpMode {
          */
         double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
 
-        leftFrontPower = (forward + strafe + rotate) / denominator;
-        rightFrontPower = (forward - strafe - rotate) / denominator;
-        leftBackPower = (forward - strafe + rotate) / denominator;
-        rightBackPower = (forward + strafe - rotate) / denominator;
+        leftFrontPower = (forward + strafe + rotate) / 2.25;
+        rightFrontPower = (forward - strafe - rotate) / 2.25;
+        leftBackPower = (forward - strafe + rotate) / 2.25;
+        rightBackPower = (forward + strafe - rotate) / 2.25;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
@@ -379,7 +379,7 @@ public class AdrianStarterbotTeleop extends OpMode {
         x = Math.max(18, x);
 
         return -0.000744119 * x * x * x
-                +0.0228351 * x * x
+                +0.228351 * x * x
                 -15.52643 * x
                 + 1716.40744;
     }
