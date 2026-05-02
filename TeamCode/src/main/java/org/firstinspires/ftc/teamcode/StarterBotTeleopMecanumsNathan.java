@@ -4,7 +4,6 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -60,7 +59,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
     private NathanPinpointLocalizer localizer = null;
-    private Pose2d initialRobotPose = new Pose2d(19.5, 124, Math.toRadians(-45));
+    private final Pose2d initialRobotPose = new Pose2d(19.5, 124, Math.toRadians(-45));
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -74,7 +73,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
      * what "State" our machine is in, run the associated code, and when we are done with that step
      * move on to the next state.
      * This enum is called the "LaunchState". It reflects the current condition of the shooter
-     * motor and we move through the enum when the user asks our code to fire a shot.
+     * motor, and we move through the enum when the user asks our code to fire a shot.
      * It starts at idle, when the user requests a launch, we enter SPIN_UP where we get the
      * motor up to speed, once it meets a minimum speed then it starts and then ends the launch process.
      * We can use higher level code to cycle through these states. But this allows us to write
@@ -89,14 +88,13 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
 
     private LaunchState launchState;
 
-    // Setup a variable for each drive wheel to save power level for telemetry
+    // Set up a variable for each drive wheel to save power level for telemetry
     double leftFrontPower;
     double rightFrontPower;
     double leftBackPower;
     double rightBackPower;
     double LAUNCHER_TARGET_VELOCITY = 1750;
     double LAUNCHER_MIN_VELOCITY = 1750;
-    double INCREASE_VALUE = 10;
     private static final double kOffset = 10;
 
 
@@ -298,7 +296,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
          * This ensures all the powers maintain the same ratio,
          * but only if at least one is out of the range [-1, 1]
          */
-        double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
+        // double denominator = Math.max(Math.abs(forward) + Math.abs(strafe) + Math.abs(rotate), 1);
 
         leftFrontPower = (forward + strafe + rotate) / 2.25;
         rightFrontPower = (forward - strafe - rotate) / 2.25;
