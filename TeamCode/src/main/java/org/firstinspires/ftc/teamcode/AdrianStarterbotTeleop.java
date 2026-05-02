@@ -73,6 +73,9 @@ public class AdrianStarterbotTeleop extends OpMode {
     private static final double RED_GOAL_X = 130;
     private static final double RED_GOAL_Y = 130;
     private static final double koffset = 10;
+    private static final double kturn = 1.5;
+    double driverturn;
+    double targetAngledegrees;
 
 
 
@@ -263,6 +266,7 @@ public class AdrianStarterbotTeleop extends OpMode {
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
+
         // Distance to BLUE goal
         double Bluedist = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
 
@@ -297,6 +301,7 @@ public class AdrianStarterbotTeleop extends OpMode {
         telemetry.addData("Velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
         telemetry.addData("Blue goal distance", Bluedist);
         telemetry.addData("Red goal distance", Redist);
+        telemetry.addData("Target Angle", targetAngledegrees);
         telemetry.update();
 
     }
@@ -327,10 +332,43 @@ public class AdrianStarterbotTeleop extends OpMode {
         rightBackDrive.setPower(rightBackPower);
 
     }
+    double spintoRed (Pose2d pose2d) {
+        double robotX = pose2d.position.x;
+        double robotY = pose2d.position.y;
+        double robotHeading = pose2d.heading.toDouble();
+        //heading is in RADIANS not DEGREES
 
+        double dx = RED_GOAL_X - robotX;
+        double dy = RED_GOAL_Y - robotY;
+        double targetAngle = -Math.atan2(dx,dy);
+        // also RADIANS
+        double angleError = targetAngle-robotHeading;
+        angleError=Math.atan2(Math.sin(angleError),
+                Math.cos(angleError));
+        return -kturn*angleError;
+        double targetAngledegrees = targetAngle*57.2958;
+        if (gamepad2.right_bumper) {
+            driverturn = spintoRed(currentPose);
+        } else {
+            driverturn = gamepad2.right_stick_x;
+        }
+
+
+
+
+
+
+
+
+
+}
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
+
+
+                mecanumDrive(-gamepad2.left_stick_y,
+                        gamepad2.left_stick_x,driverturn);
                 if(gamepad2.left_bumper || gamepad2.left_trigger > 0.1) {
                     launchState = LaunchState.INTAKE;
                 }
@@ -382,5 +420,6 @@ public class AdrianStarterbotTeleop extends OpMode {
                 +0.228351 * x * x
                 -15.52643 * x
                 + 1716.40744;
+
     }
 }
