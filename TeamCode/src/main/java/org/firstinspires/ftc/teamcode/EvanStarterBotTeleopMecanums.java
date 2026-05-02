@@ -215,7 +215,7 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
         double dx = RED_GOAL_X - robotX;
         double dy = RED_GOAL_Y - robotY;
 
-        double targetAngle = -Math.atan2(dx, dy); // radians
+        double targetAngle = Math.atan2(dy, dx); // radians
         double angleError = targetAngle - robotHeading;
 
         if(gamepad1.left_bumper){
@@ -279,8 +279,8 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("Velocity", "%.1f, %.1f, %.1f", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
         telemetry.addData("Blue goal distance", distToBlue);
         telemetry.addData("Red goal distance", distToRed);
-        telemetry.addData("targetAngle", targetAngle);
-        telemetry.addData("angleError", angleError);
+        telemetry.addData("targetAngle", Math.toDegrees(targetAngle));
+        telemetry.addData("angleError", Math.toDegrees(angleError));
         telemetry.update();
 
     }
@@ -370,7 +370,7 @@ public class EvanStarterBotTeleopMecanums extends OpMode {
         double dx = BLUE_GOAL_X - robotX;
         double dy = BLUE_GOAL_Y - robotY;
 
-        double targetAngle = -Math.atan2(dx, dy); //radians
+        double targetAngle = Math.atan2(dy, dx); //radians
         double angleError = targetAngle - robotHeading;
 
         //warp to [-pi, pi], can also use mod but more complicated
