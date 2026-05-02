@@ -259,7 +259,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         /*
          * Show the state and motor powers
          */
-        telemetry.addData("State", launchState);
+        telemetry.addData("State", currentLaunchState);
         telemetry.addData("Launcher Min Velocity", LAUNCHER_MIN_VELOCITY);
         telemetry.addData("Intake Power", intake.getPower());
         telemetry.addData("Launcher Target Velocity", LAUNCHER_TARGET_VELOCITY);
