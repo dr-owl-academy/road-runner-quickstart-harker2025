@@ -28,6 +28,10 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     private static final double RED_GOAL_X = 130;
     private static final double RED_GOAL_Y = 130;
     private static final double kOffset = 5;
+
+    double kTurn =1.5;
+    double driverTurn = 0;
+
     
 
 
@@ -181,7 +185,34 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
+
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
+        // hold right bumper to auto-aim
+        if (gamepad1.right_bumper) {
+            driverTurn = spintoRed(currentPose);
+        } else {
+            driverTurn = gamepad1.right_stick_x;
+        }
+
+        mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, driverTurn);
+
+
+
+
+        double robotX = currentPose.position.x;
+        double robotY = currentPose.position.y;
+        double robotHeading = currentPose.heading.toDouble();
+
+        double dx = RED_GOAL_X - robotX;
+        double dy = RED_GOAL_Y - robotY;
+
+        double targetAngle = -Math.atan2(dx, dy); // radians
+        double angleError = targetAngle - robotHeading;
+
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+
+
 
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
@@ -194,8 +225,8 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
          */
         launch(gamepad2.rightBumperWasPressed());
 
-        PoseVelocity2d currentVelocity = localizer.update();
-        Pose2d currentPose = localizer.getPose();
+
+
         //Distance to BLUE goal
         double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
         //Distance to BLUE goal
@@ -314,6 +345,22 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
                 +24.42148 * x
                 + 721.27595;
     }
+    double spintoRed (Pose2d pose2d) {
+        double robotX = pose2d.position.x;
+        double robotY = pose2d.position.y;
+        double robotHeading = pose2d.heading.toDouble(); // radians
+
+        double dx = RED_GOAL_X - robotX;
+        double dy = RED_GOAL_Y - robotY;
+
+        double targetAngle = -Math.atan2(dx, dy); // radians
+        double angleError = targetAngle - robotHeading;
+
+        // wrap to [-pi, pi], can also use mod but more complicated
+        angleError = Math.atan2(Math.sin(angleError), Math.cos(angleError));
+        return -kTurn * angleError;
+    }
 }
+
 
 
