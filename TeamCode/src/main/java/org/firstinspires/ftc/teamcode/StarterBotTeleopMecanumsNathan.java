@@ -205,7 +205,27 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
-        mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
+
+        double robotX = currentPose.position.x;
+        double robotY = currentPose.position.y;
+        double robotHeading = currentPose.heading.toDouble();
+
+        double dx = RED_GOAL_X - robotX;
+        double dy = RED_GOAL_Y - robotY;
+
+        double targetAngle = -Math.atan2(dx, dy); // radians
+        double angleError = targetAngle - robotHeading;
+
+        if(gamepad1.left_bumper){
+            driverTurn = spintoBlue(currentPose);
+        }
+        else {
+            driverTurn = gamepad1.right_stick_x;
+        }
+
+        mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, driverTurn);
 
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
@@ -232,20 +252,12 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
          */
         launch(gamepad2.rightBumperWasPressed());
 
-        PoseVelocity2d currentVelocity = localizer.update();
-        Pose2d currentPose = localizer.getPose();
         //Distance to BLUE goal
         double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
         //Distance to BLUE goal
         double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
         // intake test
 
-        if(gamepad1.a){
-            driverTurn = spintoBlue(currentPose);
-        }
-            else {
-                driverTurn = gamepad1.right_stick_x;
-        }
         LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
         LAUNCHER_MIN_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
 
@@ -267,6 +279,8 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
         telemetry.addData("Velocity", "%.1f, %.1f, %.1f", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
         telemetry.addData("Blue goal distance", distToBlue);
         telemetry.addData("Red goal distance", distToRed);
+        telemetry.addData("targetAngle", targetAngle);
+        telemetry.addData("angleError", angleError);
         telemetry.update();
 
     }
