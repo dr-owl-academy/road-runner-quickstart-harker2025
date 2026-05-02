@@ -39,6 +39,8 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     private static final double BLUE_GOAL_Y = 129.5;
     private static final double RED_GOAL_X = 130;
     private static final double RED_GOAL_Y = 130;
+    private static final double kTurn = 1.5;
+    double driverTurn = 0;
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -58,7 +60,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
     private NathanPinpointLocalizer localizer = null;
-    private Pose2d initialRobotPose = new Pose2d(14.5, 129.5, Math.toRadians(-45));
+    private Pose2d initialRobotPose = new Pose2d(19.5, 124, Math.toRadians(-45));
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
     ElapsedTime feederTimer = new ElapsedTime();
 
@@ -95,7 +97,7 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
     double LAUNCHER_TARGET_VELOCITY = 1750;
     double LAUNCHER_MIN_VELOCITY = 1750;
     double INCREASE_VALUE = 10;
-    private static final double kOffset = 100;
+    private static final double kOffset = 10;
 
 
     /*
@@ -238,6 +240,12 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
         double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
         // intake test
 
+        if(gamepad1.a){
+            driverTurn = spintoBlue(currentPose);
+        }
+            else {
+                driverTurn = gamepad1.right_stick_x;
+        }
         LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
         LAUNCHER_MIN_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
 
@@ -339,5 +347,20 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
                 +0.228351 * x * x
                 -15.52643 * x
                 +1716.40744;
+    }
+    double spintoBlue(Pose2d pose2d){
+        double robotX = pose2d.position.x;
+        double robotY = pose2d.position.y;
+        double robotHeading = pose2d.heading.toDouble(); //radians
+
+        double dx = BLUE_GOAL_X - robotX;
+        double dy = BLUE_GOAL_Y - robotY;
+
+        double targetAngle = -Math.atan2(dx, dy); //radians
+        double angleError = targetAngle - robotHeading;
+
+        //warp to [-pi, pi], can also use mod but more complicated
+        angleError = Math.atan2(Math.sin(angleError), Math.cos(angleError));
+        return -kTurn * angleError;
     }
 }
