@@ -340,15 +340,18 @@ public class AdrianStarterbotTeleop extends OpMode {
 
         double dx = RED_GOAL_X - robotX;
         double dy = RED_GOAL_Y - robotY;
-        double targetAngle = -Math.atan2(dx,dy);
+        double targetAngle = -Math.atan2(dx, dy);
         // also RADIANS
-        double angleError = targetAngle-robotHeading;
-        angleError=Math.atan2(Math.sin(angleError),
+        double angleError = targetAngle - robotHeading;
+        angleError = Math.atan2(Math.sin(angleError),
                 Math.cos(angleError));
+
         return -kturn*angleError;
-        double targetAngledegrees = targetAngle*57.2958;
+
+        targetAngledegrees = targetAngle * 57.2958;
+
         if (gamepad2.right_bumper) {
-            driverturn = spintoRed(currentPose);
+            driverturn = spintoRed(pose);
         } else {
             driverturn = gamepad2.right_stick_x;
         }
@@ -361,7 +364,7 @@ public class AdrianStarterbotTeleop extends OpMode {
 
 
 
-}
+    }
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
