@@ -183,7 +183,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         PoseVelocity2d currentVelocity = localizer.update();
         Pose2d currentPose = localizer.getPose();
         // hold right bumper to auto-aim
-        if (gamepad1.right_bumper) {
+        if (gamepad1.left_bumper) {
             driverTurn = spintoRed(currentPose);
         } else {
             driverTurn = gamepad1.right_stick_x;
@@ -201,7 +201,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         double dx = BLUE_GOAL_X - robotX;
         double dy = BLUE_GOAL_Y - robotY;
 
-        double targetAngle = -Math.atan2(dx, dy); // radians
+        double targetAngle = Math.atan2(dy, dx); // radians
         double angleError = targetAngle - robotHeading;
 
 
@@ -345,7 +345,7 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         double dx = BLUE_GOAL_X - robotX;
         double dy = BLUE_GOAL_Y - robotY;
 
-        double targetAngle = -Math.atan2(dx, dy); // radians
+        double targetAngle = Math.atan2(dy, dx); // radians
         double angleError = targetAngle - robotHeading;
 
         // wrap to [-pi, pi], can also use mod but more complicated
