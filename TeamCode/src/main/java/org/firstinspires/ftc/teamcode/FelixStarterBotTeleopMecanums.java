@@ -32,13 +32,13 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
     double kTurn =1.5;
     double driverTurn = 0;
 
+    
 
 
-
-    double LAUNCHER_TARGET_VELOCITY = 1125;
-    double LAUNCHER_MIN_VELOCITY = 1075;
-    double distToGoal = 0;
-    double goal = 0;
+     double LAUNCHER_TARGET_VELOCITY = 1125;
+     double LAUNCHER_MIN_VELOCITY = 1075;
+     double distToGoal = 0;
+     double goal = 0;
 
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
@@ -353,3 +353,6 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         return -kTurn * angleError;
     }
 }
+
+
+
