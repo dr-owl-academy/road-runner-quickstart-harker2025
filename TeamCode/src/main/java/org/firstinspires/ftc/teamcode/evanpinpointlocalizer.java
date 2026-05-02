@@ -20,10 +20,13 @@ package org.firstinspires.ftc.teamcode;/*
  *   SOFTWARE.
  */
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -43,6 +46,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 public class evanpinpointlocalizer extends OpMode {
     // Create an instance of the sensor
     GoBildaPinpointDriver pinpoint;
+
+    public evanpinpointlocalizer(HardwareMap hardwareMap, double pinpointInPerTick, Pose2d initialRobotPose) {
+    }
 
     @Override
     public void init() {
@@ -109,5 +115,13 @@ public class evanpinpointlocalizer extends OpMode {
          * an incorrect starting value for x, y, and heading.
          */
         pinpoint.resetPosAndIMU();
+    }
+
+    public PoseVelocity2d update() {
+        return null;
+    }
+
+    public Pose2d getPose() {
+        return null;
     }
 }

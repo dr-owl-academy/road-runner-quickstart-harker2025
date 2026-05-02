@@ -1,41 +1,10 @@
-/*
- * Copyright (c) 2025 FIRST
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to
- * endorse or promote products derived from this software without specific prior
- * written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
- * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -45,7 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-/*
+/*h
  * This file includes a teleop (driver-controlled) file for the goBILDA® StarterBot for the
  * 2025-2026 FIRST® Tech Challenge season DECODE™. It leverages a differential/Skid-Steer
  * system for robot mobility, one high-speed motor driving two "launcher wheels", and two servos
@@ -61,11 +30,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @TeleOp(name = "EvanStarterBotTeleopMecanums", group = "StarterBot")
-
-public static class evanStarterBotTeleopMecanums extends OpMode {
-    final double FEED_TIME_SECONDS = 0.20; //The feeder servos run this long when a shot is requested.
+//@Disabled
+public class EvanStarterBotTeleopMecanums extends OpMode {
+    final double FEED_TIME_SECONDS = 0.40; //The feeder servos run this long when a shot is requested.
     final double STOP_SPEED = 0.0; //We send this power to the servos when we want them to stop.
-    final double FULL_SPEED = 1.0;
+    final double FULL_SPEED = 5250.0;
+    private static final double BLUE_GOAL_X = 14.5;
+    private static final double BLUE_GOAL_Y = 129.5;
+    private static final double RED_GOAL_X = 130;
+    private static final double RED_GOAL_Y = 130;
+    private static final double kTurn = 1.5;
+    double driverTurn = 0;
 
     /*
      * When we control our launcher motor, we are using encoders. These allow the control system
@@ -73,10 +48,8 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
      * velocity. Here we are setting the target, and minimum velocity that the launcher should run
      * at. The minimum velocity is a threshold for determining when to fire.
      */
-    double LAUNCHER_TARGET_VELOCITY = 1500;
-    double LAUNCHER_MIN_VELOCITY = 500;
 
-    double kOffset = 50;
+
     // Declare OpMode members.
     private DcMotor leftFrontDrive = null;
     private DcMotor rightFrontDrive = null;
@@ -86,17 +59,9 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
     private CRServo leftFeeder = null;
     private CRServo rightFeeder = null;
     private DcMotor intake = null;
-    private PinpointLocalizer localizer = null;
-    private Pose2d initialRobotPose = new Pose2d(48, 9.3, Math.toRadians(90));
+    private evanpinpointlocalizer localizer = null;
+    private Pose2d initialRobotPose = new Pose2d(19.5, 124, Math.toRadians(-45));
     private static final double PINPOINT_IN_PER_TICK = 0.0019684344326;
-    private static final double BLUE_GOAL_X = 14.5;
-    private static final double BLUE_GOAL_Y = 129.5;
-
-    private static final double RED_GOAL_X = 130;
-    private static final double RED_GOAL_Y = 130;
-
-    private static double kTurn = 1.5;
-
     ElapsedTime feederTimer = new ElapsedTime();
 
     /*
@@ -120,7 +85,6 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
         SPIN_UP,
         LAUNCH,
         LAUNCHING,
-        INTAKE
     }
 
     private LaunchState launchState;
@@ -130,6 +94,11 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
     double rightFrontPower;
     double leftBackPower;
     double rightBackPower;
+    double LAUNCHER_TARGET_VELOCITY = 1750;
+    double LAUNCHER_MIN_VELOCITY = 1750;
+    double INCREASE_VALUE = 10;
+    private static final double kOffset = 10;
+
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -150,7 +119,7 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
         launcher = hardwareMap.get(DcMotorEx.class, "launcher");
         leftFeeder = hardwareMap.get(CRServo.class, "left_feeder");
         rightFeeder = hardwareMap.get(CRServo.class, "right_feeder");
-        intake = hardwareMap.get(DcMotor.class, "intake");
+        intake = hardwareMap.get(DcMotor.class,"intake");
 
 
         /*
@@ -173,7 +142,6 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
          * through any wiring.
          */
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
 
         /*
          * Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to
@@ -198,10 +166,8 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
          * Much like our drivetrain motors, we set the left feeder servo to reverse so that they
          * both work to feed the ball into the robot.
          */
-        leftFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        localizer = new PinpointLocalizer(hardwareMap, PINPOINT_IN_PER_TICK, initialRobotPose);
-
+        rightFeeder.setDirection(DcMotorSimple.Direction.REVERSE);
+        localizer = new evanpinpointlocalizer (hardwareMap, PINPOINT_IN_PER_TICK,initialRobotPose);
         /*
          * Tell the driver that initialization is complete.
          */
@@ -215,6 +181,7 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
      */
     @Override
     public void init_loop() {
+
     }
 
     /*
@@ -238,34 +205,46 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
          * both motors work to rotate the robot. Combinations of these inputs can be used to create
          * more complex maneuvers.
          */
-        mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        PoseVelocity2d currentVelocity = localizer.update();
+        Pose2d currentPose = localizer.getPose();
 
+        double robotX = currentPose.position.x;
+        double robotY = currentPose.position.y;
+        double robotHeading = currentPose.heading.toDouble();
 
-        /*
-         * TARGET VELOCITY ADJUSTMENT LOGIC using built-in edge detection to change speed by 10 per press.
-         */
-      /*  if (gamepad2.dpadUpWasPressed()) {
-            LAUNCHER_TARGET_VELOCITY += 20;
+        double dx = RED_GOAL_X - robotX;
+        double dy = RED_GOAL_Y - robotY;
+
+        double targetAngle = -Math.atan2(dx, dy); // radians
+        double angleError = targetAngle - robotHeading;
+
+        if(gamepad1.left_bumper){
+            driverTurn = spintoBlue(currentPose);
         }
-        if (gamepad2.dpadDownWasPressed()) {
-            LAUNCHER_TARGET_VELOCITY -= 20;
+        else {
+            driverTurn = gamepad1.right_stick_x;
         }
+
+        mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, driverTurn);
+
         /*
          * Here we give the user control of the speed of the launcher motor without automatically
          * queuing a shot.
          */
-        PoseVelocity2d currentVelocity = localizer.update();
-        Pose2d currentPose = localizer.getPose();
-
-        double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
-
-        double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
-
-        if (gamepad2.y) {
-            LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToRed) + kOffset;
-            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else if (gamepad2.b) { // stop flywheel
-            launcher.setVelocity(STOP_SPEED);
+        /*
+        while (gamepad2.dpadUpWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY + INCREASE_VALUE;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY + INCREASE_VALUE;
+            if (gamepad2.dpadUpWasPressed()) {
+                new SleepAction(0.3);
+            }
+        }
+        // while (gamepad2.dpadDownWasPressed()) {
+            LAUNCHER_MIN_VELOCITY = LAUNCHER_MIN_VELOCITY - INCREASE_VALUE;
+            LAUNCHER_TARGET_VELOCITY = LAUNCHER_TARGET_VELOCITY - INCREASE_VALUE;
+            if (gamepad2.dpadDownWasPressed()) {
+                new SleepAction(0.3);
+            }
         }
 
         /*
@@ -273,22 +252,35 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
          */
         launch(gamepad2.rightBumperWasPressed());
 
+        //Distance to BLUE goal
+        double distToBlue = Math.hypot(BLUE_GOAL_X - currentPose.position.x, BLUE_GOAL_Y - currentPose.position.y);
+        //Distance to BLUE goal
+        double distToRed = Math.hypot(RED_GOAL_X - currentPose.position.x, RED_GOAL_Y - currentPose.position.y);
+        // intake test
+
+        LAUNCHER_TARGET_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+        LAUNCHER_MIN_VELOCITY = velocityFromDistance(distToBlue) + kOffset;
+
+        if (gamepad2.y) {
+            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+        } else if (gamepad2.b) { // stop flywheel
+            launcher.setVelocity(STOP_SPEED);
+        }
 
         /*
          * Show the state and motor powers
          */
-        telemetry.addData("state", launchState);
-        telemetry.addData("launcher speed", launcher.getVelocity());
-        telemetry.addData("intake power", intake.getPower());
-        telemetry.addData("launcher min velocity", LAUNCHER_MIN_VELOCITY);
-        telemetry.addData("launcher target velocity", LAUNCHER_TARGET_VELOCITY);
-        telemetry.addData("launcher actual speed", launcher.getVelocity());
-        telemetry.addData("pose", "(%.1f, %.1f, %.1f)", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
-        telemetry.addData("velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
-        telemetry.addData("blue goal distance", distToBlue);
-        telemetry.addData("red goal distance", distToRed);
-        telemetry.addData("targetAngle", Math.toDegrees(targetAngle));
-        telemetry.addData("angleError", Math.toDegrees(angleError));
+        telemetry.addData("State", launchState);
+        telemetry.addData("motorSpeed", launcher.getVelocity());
+        telemetry.addData("Intake Power", intake.getPower());
+        telemetry.addData("launchSpeedMIN",LAUNCHER_MIN_VELOCITY);
+        telemetry.addData("launchSpeedTARGET",LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("Pose", "%.1f, %.1f, %.1f", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
+        telemetry.addData("Velocity", "%.1f, %.1f, %.1f", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.addData("Blue goal distance", distToBlue);
+        telemetry.addData("Red goal distance", distToRed);
+        telemetry.addData("targetAngle", targetAngle);
+        telemetry.addData("angleError", angleError);
         telemetry.update();
 
     }
@@ -300,7 +292,7 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
     public void stop() {
     }
 
-    void mecanumDrive(double forward, double strafe, double rotate) {
+    void mecanumDrive(double forward, double strafe, double rotate){
 
         /* the denominator is the largest motor power (absolute value) or 1
          * This ensures all the powers maintain the same ratio,
@@ -311,7 +303,7 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
         leftFrontPower = (forward + strafe + rotate) / 2.25;
         rightFrontPower = (forward - strafe - rotate) / 2.25;
         leftBackPower = (forward - strafe + rotate) / 2.25;
-        rightBackPower = (forward + strafe - rotate) / 2.25;
+        rightBackPower = (forward + strafe - rotate) / 2.25 ;
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
@@ -323,27 +315,35 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
     void launch(boolean shotRequested) {
         switch (launchState) {
             case IDLE:
-                if (gamepad2.left_bumper || gamepad2.left_trigger > 0.1) {
-                    launchState = LaunchState.INTAKE;
-                } else if (shotRequested) {
+                if (shotRequested) {
                     launchState = LaunchState.SPIN_UP;
+                    intake.setPower(0);
                 }
-                break;
+                if (gamepad2.left_bumper) {
+                    intake.setPower(1);
+                } else if (gamepad2.leftBumperWasReleased()) {
+                    intake.setPower(0);
+                }
+                if(gamepad2.xWasPressed()) {
+                    intake.setPower(-1);
+                } else if (gamepad2.xWasReleased()) {
+                    intake.setPower(0);
+                }
 
+                break;
             case SPIN_UP:
+                intake.setPower(0);
                 launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 if (launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
                     launchState = LaunchState.LAUNCH;
                 }
                 break;
-
             case LAUNCH:
                 leftFeeder.setPower(FULL_SPEED);
                 rightFeeder.setPower(FULL_SPEED);
                 feederTimer.reset();
                 launchState = LaunchState.LAUNCHING;
                 break;
-
             case LAUNCHING:
                 if (feederTimer.seconds() > FEED_TIME_SECONDS) {
                     launchState = LaunchState.IDLE;
@@ -351,23 +351,10 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
                     rightFeeder.setPower(STOP_SPEED);
                 }
                 break;
-
-            case INTAKE:
-                if (gamepad2.left_bumper) {
-                    intake.setPower(1);
-                } else if (gamepad2.left_trigger > 0.1) {
-                    intake.setPower(-1);
-                } else {
-                    intake.setPower(0);
-                    launchState = LaunchState.IDLE;
-                }
-                break;
         }
     }
-
-
     double velocityFromDistance(double x) {
-
+        //Only clamp minimum (no upper clamp)
         x = Math.max(18, x);
 
         return -0.000744119 * x * x * x
@@ -375,20 +362,19 @@ public static class evanStarterBotTeleopMecanums extends OpMode {
                 -15.52643 * x
                 +1716.40744;
     }
+    double spintoBlue(Pose2d pose2d){
+        double robotX = pose2d.position.x;
+        double robotY = pose2d.position.y;
+        double robotHeading = pose2d.heading.toDouble(); //radians
+
+        double dx = BLUE_GOAL_X - robotX;
+        double dy = BLUE_GOAL_Y - robotY;
+
+        double targetAngle = -Math.atan2(dx, dy); //radians
+        double angleError = targetAngle - robotHeading;
+
+        //warp to [-pi, pi], can also use mod but more complicated
+        angleError = Math.atan2(Math.sin(angleError), Math.cos(angleError));
+        return -kTurn * angleError;
+    }
 }
-double spintoRed (Pose2d pose2d) {
-    double robotX = pose2d.position.x;
-    double robotY = pose2d.position.y;
-    double robotHeading = pose2d.heading.toDouble(); // radians
-
-    double dx = evanStarterBotTeleopMecanums.RED_GOAL_X - robotX;
-    double dy = evanStarterBotTeleopMecanums.RED_GOAL_Y - robotY;
-
-    double targetAngle = -Math.atan2(dx, dy); // radians
-    double angleError = targetAngle - robotHeading;
-
-    // wrap to [-pi, pi], can also use mod but more complicated
-    angleError = Math.atan2(Math.sin(angleError), Math.cos(angleError));
-    return -evanStarterBotTeleopMecanums.kTurn * angleError;
-}
-
