@@ -259,15 +259,17 @@ public class FelixStarterBotTeleopMecanums extends OpMode {
         /*
          * Show the state and motor powers
          */
-        telemetry.addData("State", currentLaunchState);
-        telemetry.addData("motorSpeed", launcher.getVelocity());
+        telemetry.addData("State", launchState);
+        telemetry.addData("Launcher Min Velocity", LAUNCHER_MIN_VELOCITY);
         telemetry.addData("Intake Power", intake.getPower());
-        telemetry.addData("launchSpeedMIN",LAUNCHER_MIN_VELOCITY);
-        telemetry.addData("launchSpeedTARGET",LAUNCHER_TARGET_VELOCITY);
-        telemetry.addData("Pose", "%.1f, %.1f, %.1f", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
-        telemetry.addData("Velocity", "%.1f, %.1f, %.1f", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
+        telemetry.addData("Launcher Target Velocity", LAUNCHER_TARGET_VELOCITY);
+        telemetry.addData("Launcher Actual Speed", launcher.getVelocity());
+        telemetry.addData("Pose", "(%.1f, %.1f, %.1f)", currentPose.position.x, currentPose.position.y, Math.toDegrees(currentPose.heading.toDouble()));
+        telemetry.addData("Velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
         telemetry.addData("Blue goal distance", distToBlue);
         telemetry.addData("Red goal distance", distToRed);
+        telemetry.addData("targetAngle", Math.toDegrees(targetAngle));
+        telemetry.addData("angleError", Math.toDegrees(angleError));
         telemetry.update();
 
     }
