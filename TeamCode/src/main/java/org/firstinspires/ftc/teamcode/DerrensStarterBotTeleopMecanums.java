@@ -243,7 +243,7 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
 
         // hold right bumper to auto-aim
         if (gamepad1.right_bumper) {
-            driverTurn = spintoRed(currentPose);
+            driverTurn = spintoblue(currentPose);
         } else {
             driverTurn = gamepad1.right_stick_x;
         }
@@ -257,10 +257,10 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         double robotY = currentPose.position.y;
         double robotHeading = currentPose.heading.toDouble();
 
-        double dx = RED_GOAL_X - robotX;
-        double dy = RED_GOAL_Y - robotY;
-
-        double targetAngle = -Math.atan2(dx, dy); // radians
+        double dx = Math.abs(BLUE_GOAL_X - robotX);
+        double dy = Math.abs(BLUE_GOAL_Y - robotY);
+        double tanv = Math.atan2(dx, dy);
+        double targetAngle = Math.toRadians(90) + Math.atan2(dx, dy); // radians
         double angleError = targetAngle - robotHeading;
 
         /*
@@ -305,7 +305,10 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
         telemetry.addData("velocity", "(%.1f, %.1f, %.1f)", currentVelocity.linearVel.x, currentVelocity.linearVel.y, Math.toDegrees(currentVelocity.angVel));
         telemetry.addData("blue goal distance", distToBlue);
         telemetry.addData("red goal distance", distToRed);
-        telemetry.update();
+        telemetry.addData("tanv", Math.toDegrees(tanv));
+        telemetry.addData("targetAngle", Math.toDegrees(targetAngle));
+        telemetry.addData("angleError", Math.toDegrees(angleError));
+         telemetry.update();
 
     }
 
@@ -391,15 +394,16 @@ public class DerrensStarterBotTeleopMecanums extends OpMode {
                 -15.52643 * x
                 +1716.40744;
     }
-    double spintoRed (Pose2d pose2d) {
+    double spintoblue (Pose2d pose2d) {
         double robotX = pose2d.position.x;
         double robotY = pose2d.position.y;
         double robotHeading = pose2d.heading.toDouble(); // radians
 
-        double dx = RED_GOAL_X - robotX;
-        double dy = RED_GOAL_Y - robotY;
+        double dx = Math.abs(BLUE_GOAL_X - robotX);
+        double dy = Math.abs(BLUE_GOAL_Y - robotY);
 
-        double targetAngle = -Math.atan2(dx, dy); // radians
+
+        double targetAngle = Math.toRadians(90) + Math.atan2(dx, dy); // radians
         double angleError = targetAngle - robotHeading;
 
         // wrap to [-pi, pi], can also use mod but more complicated
