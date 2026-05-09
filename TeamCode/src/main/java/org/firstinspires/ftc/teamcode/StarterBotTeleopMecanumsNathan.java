@@ -210,8 +210,8 @@ public class StarterBotTeleopMecanumsNathan extends OpMode {
         double robotY = currentPose.position.y;
         double robotHeading = currentPose.heading.toDouble();
 
-        double dx = RED_GOAL_X - robotX;
-        double dy = RED_GOAL_Y - robotY;
+        double dx = BLUE_GOAL_X - robotX;
+        double dy = BLUE_GOAL_Y - robotY;
 
         double targetAngle = Math.atan2(dy, dx); // radians
         double angleError = targetAngle - robotHeading;
