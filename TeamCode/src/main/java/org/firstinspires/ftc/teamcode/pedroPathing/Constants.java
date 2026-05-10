@@ -17,7 +17,7 @@ public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(8.45)
             .forwardZeroPowerAcceleration(-35.545091566178044)
-            .lateralZeroPowerAcceleration(-64.69072412178049)
+            .lateralZeroPowerAcceleration(-64.69072412178049) //awrgoabougbuoabogbaroubgoabougbraogbauobguoabogbaoubguobadugbojbeojrgbobeajorbgobaeobgoubuEBHELLOAOGRHAOGHOARGOUBAOBGOUABROUGBOSBRTHIUGBASIVbbbaorhgouhaohgahiahgroiabogbouab
             .translationalPIDFCoefficients(new PIDFCoefficients(0.04,0,0.005,0.025))
             .headingPIDFCoefficients(new PIDFCoefficients(0.5,0,0.1,0.03));
 
@@ -35,8 +35,8 @@ public class Constants {
             .yVelocity(54.46760090505044);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-1.37795)
-            .strafePodX(-3.62205)
+            .forwardPodY(-1.375)
+            .strafePodX(-2.875)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
