@@ -409,10 +409,10 @@ public class CoachStarterBotTeleopMecanums extends OpMode {
                 +24.42148 * x
                 + 721.27595;
     }
-    double spintoRed (Pose2d pose2d) {
-        double robotX = pose2d.position.x;
-        double robotY = pose2d.position.y;
-        double robotHeading = pose2d.heading.toDouble(); // radians
+    double spintoRed (Pose2d RobotPose2d) {
+        double robotX = RobotPose2d.position.x;
+        double robotY = RobotPose2d.position.y;
+        double robotHeading = RobotPose2d.heading.toDouble(); // radians
 
         double dx = RED_GOAL_X - robotX;
         double dy = RED_GOAL_Y - robotY;
