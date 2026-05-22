@@ -19,7 +19,7 @@ public class Constants {
             .forwardZeroPowerAcceleration(-35.82281695)
             .lateralZeroPowerAcceleration(-54.68048657)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.037,0,0.005,0.019))
-            .headingPIDFCoefficients(new PIDFCoefficients(0.5,0,0.1,0.03));
+            .headingPIDFCoefficients(new PIDFCoefficients(0.325,0,0.1,0.025));
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -43,7 +43,7 @@ public class Constants {
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 0.95, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 0.015, 1);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
