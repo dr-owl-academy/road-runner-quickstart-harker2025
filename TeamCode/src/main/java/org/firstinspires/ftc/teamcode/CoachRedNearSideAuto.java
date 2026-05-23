@@ -36,14 +36,11 @@ public class CoachRedNearSideAuto extends OpMode {
     private static final double RED_GOAL_X = 130.0;
     private static final double RED_GOAL_Y = 130.0;
 
-    private static final Pose START_POSE =
-            new Pose(107.935, 132.775, Math.toRadians(90));
+    private static final Pose START_POSE = new Pose(107.935, 132.775, Math.toRadians(90));
 
-    private static final Pose SHOOT_POSE =
-            new Pose(91.870, 82.161, Math.toRadians(90));
+    private static final Pose SHOOT_POSE = new Pose(91.870, 82.161, Math.toRadians(90));
 
-    private static final Pose INTAKE_POSE =
-            new Pose(113.66, 82.161, Math.toRadians(0));
+    private static final Pose INTAKE_POSE = new Pose(113.66, 82.161, Math.toRadians(0));
 
     // -----------------------------
     // Shooter constants
@@ -77,13 +74,14 @@ public class CoachRedNearSideAuto extends OpMode {
      */
     private static final double MIN_FLYWHEEL_SPIN_UP_SECONDS = 0.70;
 
+    //use this number to adjust flywheel speed
     private static final double kOffset = 0.0;
 
     // -----------------------------
     // Path speed constants
     // -----------------------------
-    private static final double NORMAL_PATH_POWER = 0.75;
-    private static final double SLOW_INTAKE_PATH_POWER = 0.30;
+    private static final double NORMAL_PATH_POWER = 1;
+    private static final double SLOW_INTAKE_PATH_POWER = 0.40;
 
     // -----------------------------
     // Turn-to-zero constants
