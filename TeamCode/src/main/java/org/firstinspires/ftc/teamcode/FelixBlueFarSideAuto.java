@@ -33,14 +33,19 @@ public class FelixBlueFarSideAuto extends OpMode {
     // -----------------------------
     // Field constants
     // -----------------------------
-    private static final double RED_GOAL_X = 130.0;
-    private static final double RED_GOAL_Y = 130.0;
+    private static final double BLUE_GOAL_X = 14.5;
+    private static final double BLUE_GOAL_Y = 129.5;
 
-    private static final Pose START_POSE = new Pose(107.935, 132.775, Math.toRadians(90));
+    private static final Pose START_POSE = new Pose(55.66705882352941, 13.859411764705877, Math.toRadians(90));
 
-    private static final Pose SHOOT_POSE = new Pose(91.870, 82.161, Math.toRadians(90));
+    private static final Pose SHOOT_POSE1 = new Pose(61.99294117647059, 82.161, Math.toRadians(110));
 
-    private static final Pose INTAKE_POSE = new Pose(113.66, 82.161, Math.toRadians(0));
+    private static final Pose SHOOT_POSE2 = new Pose(42.11045125602347, 98.71230941704215, Math.toRadians(135));
+
+    private static final Pose INTAKE_POSE1 = new Pose(17.926017053685545, 35.20321159296564, Math.toRadians(180));
+    private static final Pose INTAKE_POSE2 = new Pose(18.403942154044213, 58.63321471656735, Math.toRadians(0));
+    private static final Pose INTAKE_POSE3 = new Pose(18.547497741678697, 82.65809287816283, Math.toRadians(0));
+    private static final Pose Final_POSE = new Pose(45.17647969298073, 123.85283414832382, Math.toRadians(67))
 
     // -----------------------------
     // Shooter constants
@@ -51,8 +56,8 @@ public class FelixBlueFarSideAuto extends OpMode {
     private static final double FEED_TIME_SECONDS = 0.20;
     private static final double TIME_BETWEEN_SHOTS_SECONDS = 0.35;
 
-    private static final int PRELOAD_BALL_COUNT = 3;
-    private static final int INTAKED_BALL_COUNT = 3;
+    private static final int PRELOAD_BALL_COUNT = 2;
+    private static final int INTAKED_BALL_COUNT = 2;
 
     /*
      * CHANGE:
@@ -62,7 +67,7 @@ public class FelixBlueFarSideAuto extends OpMode {
      * If the robot waits too long, increase this number slightly.
      * If the robot still shoots too weakly, decrease this number.
      */
-    private static final double SHOOTER_READY_TOLERANCE = 75.0;
+    private static final double SHOOTER_READY_TOLERANCE = 50.0;
 
     /*
      * CHANGE:
@@ -96,8 +101,13 @@ public class FelixBlueFarSideAuto extends OpMode {
     // Paths
     // -----------------------------
     private PathChain pathToFirstShot;
-    private PathChain pathToIntake;
-    private PathChain pathBackToShot;
+    private PathChain pathToIntake1;
+    private PathChain pathBackToShot1;
+    private PathChain pathToIntake2;
+    private PathChain pathBackToShot2;
+    private PathChain pathToIntake3;
+    private PathChain pathBackToShot3;
+    private PathChain endsequence;
 
     // -----------------------------
     // State machine variables
@@ -117,14 +127,28 @@ public class FelixBlueFarSideAuto extends OpMode {
 
     private enum AutoState {
         START_PATH_TO_FIRST_SHOT,
-        WAIT_FOR_FIRST_PATH,
-        SHOOT_PRELOADS,
+        SHOOT_FIRST_SHOT,
+        SHOOT_STOP,
         TURN_TO_ZERO_BEFORE_INTAKE,
-        START_INTAKE_PATH,
-        WAIT_FOR_INTAKE_PATH,
-        START_RETURN_PATH,
-        WAIT_FOR_RETURN_PATH,
-        SHOOT_INTAKED_BALLS,
+        START_INTAKE1_PATH,
+        WAIT_FOR_INTAKE1_PATH,
+        START_RETURN_PATH1,
+        WAIT_FOR_RETURN_PATH1,
+        SHOOT_INTAKED_BALLS1,
+        SHOOT_STOP2,
+        TURN_TO_ZERO_BEFORE_INTAKE2,
+        START_INTAKE2_PATH,
+        WAIT_FOR_INTAKE2_PATH,
+        START_RETURN_PATH2,
+        WAIT_FOR_RETURN_PATH2,
+        SHOOT_INTAKED_BALLS2,
+        SHOOT_STOP3,
+        TURN_TO_ZERO_BEFORE_INTAKE3,
+        START_INTAKE3_PATH,
+        WAIT_FOR_INTAKE3_PATH,
+        START_RETURN_PATH3,
+        WAIT_FOR_RETURN_PATH3,
+        SHOOT_INTAKED_BALLS3,
         DONE
     }
 
@@ -166,25 +190,25 @@ public class FelixBlueFarSideAuto extends OpMode {
         switch (autoState) {
 
             case START_PATH_TO_FIRST_SHOT:
-                setLauncherSpeedForPose(SHOOT_POSE);
+                setLauncherSpeedForPose(SHOOT_POSE1);
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
                 follower.followPath(pathToFirstShot);
 
-                autoState = AutoState.WAIT_FOR_FIRST_PATH;
+                autoState = AutoState.SHOOT_FIRST_SHOT;
                 break;
 
-            case WAIT_FOR_FIRST_PATH:
-                keepFlywheelReady();
+            case SHOOT_FIRST_SHOT:
 
+                FlywheelStart();
                 if (!follower.isBusy()) {
                     beginShooting(PRELOAD_BALL_COUNT);
-                    autoState = AutoState.SHOOT_PRELOADS;
+                    autoState = AutoState.SHOOT_STOP;
                 }
                 break;
 
-            case SHOOT_PRELOADS:
-                keepFlywheelReady();
+            case SHOOT_STOP:
+
 
                 if (updateShooter()) {
                     stopFeeders();
@@ -201,21 +225,21 @@ public class FelixBlueFarSideAuto extends OpMode {
                 stopFlywheel();
 
                 if (turnToHeadingZeroUsingPedro()) {
-                    autoState = AutoState.START_INTAKE_PATH;
+                    autoState = AutoState.START_INTAKE1_PATH;
                 }
                 break;
 
-            case START_INTAKE_PATH:
+            case START_INTAKE1_PATH:
                 intake.setPower(FULL_SPEED);
                 stopFlywheel();
 
                 follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
-                follower.followPath(pathToIntake);
+                follower.followPath(pathToIntake1);
 
-                autoState = AutoState.WAIT_FOR_INTAKE_PATH;
+                autoState = AutoState.WAIT_FOR_INTAKE1_PATH;
                 break;
 
-            case WAIT_FOR_INTAKE_PATH:
+            case WAIT_FOR_INTAKE1_PATH:
                 intake.setPower(FULL_SPEED);
                 stopFlywheel();
 
@@ -223,11 +247,11 @@ public class FelixBlueFarSideAuto extends OpMode {
                     intake.setPower(STOP_SPEED);
                     stopFlywheel();
 
-                    autoState = AutoState.START_RETURN_PATH;
+                    autoState = AutoState.START_RETURN_PATH1;
                 }
                 break;
 
-            case START_RETURN_PATH:
+            case START_RETURN_PATH1:
                 /*
                  * Flywheel stays off while returning.
                  * This prevents a collected ball from shooting early.
@@ -236,12 +260,12 @@ public class FelixBlueFarSideAuto extends OpMode {
                 intake.setPower(STOP_SPEED);
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
-                follower.followPath(pathBackToShot);
+                follower.followPath(pathBackToShot1);
 
-                autoState = AutoState.WAIT_FOR_RETURN_PATH;
+                autoState = AutoState.WAIT_FOR_RETURN_PATH1;
                 break;
 
-            case WAIT_FOR_RETURN_PATH:
+            case WAIT_FOR_RETURN_PATH1:
                 /*
                  * Flywheel still stays off while the robot is moving back.
                  */
@@ -254,15 +278,187 @@ public class FelixBlueFarSideAuto extends OpMode {
                      * Only now, after the robot has reached the shooting pose,
                      * spin up the flywheel for the second shooting sequence.
                      */
-                    setLauncherSpeedForPose(SHOOT_POSE);
+                    setLauncherSpeedForPose(SHOOT_POSE1);
 
                     beginShooting(INTAKED_BALL_COUNT);
-                    autoState = AutoState.SHOOT_INTAKED_BALLS;
+                    autoState = AutoState.SHOOT_INTAKED_BALLS1;
                 }
                 break;
 
-            case SHOOT_INTAKED_BALLS:
-                keepFlywheelReady();
+            case SHOOT_INTAKED_BALLS1:
+                FlywheelStart();
+
+                if (updateShooter()) {
+                    stopEverything();
+                    autoState = AutoState.SHOOT_STOP2;
+                }
+                break;
+            case SHOOT_STOP2:
+
+
+                if (updateShooter()) {
+                    stopFeeders();
+                    intake.setPower(STOP_SPEED);
+                    stopFlywheel();
+
+                    autoState = AutoState.TURN_TO_ZERO_BEFORE_INTAKE2;
+                }
+                break;
+
+            case TURN_TO_ZERO_BEFORE_INTAKE2:
+                intake.setPower(STOP_SPEED);
+                stopFeeders();
+                stopFlywheel();
+
+                if (turnToHeadingZeroUsingPedro()) {
+                    autoState = AutoState.START_INTAKE2_PATH;
+                }
+                break;
+
+            case START_INTAKE2_PATH:
+                intake.setPower(FULL_SPEED);
+                stopFlywheel();
+
+                follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
+                follower.followPath(pathToIntake2);
+
+                autoState = AutoState.WAIT_FOR_INTAKE2_PATH;
+                break;
+
+            case WAIT_FOR_INTAKE2_PATH:
+                intake.setPower(FULL_SPEED);
+                stopFlywheel();
+
+                if (!follower.isBusy()) {
+                    intake.setPower(STOP_SPEED);
+                    stopFlywheel();
+
+                    autoState = AutoState.START_RETURN_PATH2;
+                }
+                break;
+
+            case START_RETURN_PATH2:
+                /*
+                 * Flywheel stays off while returning.
+                 * This prevents a collected ball from shooting early.
+                 */
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathBackToShot2);
+
+                autoState = AutoState.WAIT_FOR_RETURN_PATH2;
+                break;
+
+            case WAIT_FOR_RETURN_PATH2:
+                /*
+                 * Flywheel still stays off while the robot is moving back.
+                 */
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                if (!follower.isBusy()) {
+                    /*
+                     * CHANGE:
+                     * Only now, after the robot has reached the shooting pose,
+                     * spin up the flywheel for the second shooting sequence.
+                     */
+                    setLauncherSpeedForPose(SHOOT_POSE1);
+
+                    beginShooting(INTAKED_BALL_COUNT);
+                    autoState = AutoState.SHOOT_INTAKED_BALLS2;
+                }
+                break;
+
+            case SHOOT_INTAKED_BALLS2:
+                FlywheelStart();
+
+                if (updateShooter()) {
+                    stopEverything();
+                    autoState = AutoState.DONE;
+                }
+                break;
+            case SHOOT_STOP3:
+
+
+                if (updateShooter()) {
+                    stopFeeders();
+                    intake.setPower(STOP_SPEED);
+                    stopFlywheel();
+
+                    autoState = AutoState.TURN_TO_ZERO_BEFORE_INTAKE3;
+                }
+                break;
+
+            case TURN_TO_ZERO_BEFORE_INTAKE3:
+                intake.setPower(STOP_SPEED);
+                stopFeeders();
+                stopFlywheel();
+
+                if (turnToHeadingZeroUsingPedro()) {
+                    autoState = AutoState.START_INTAKE3_PATH;
+                }
+                break;
+
+            case START_INTAKE3_PATH:
+                intake.setPower(FULL_SPEED);
+                stopFlywheel();
+
+                follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
+                follower.followPath(pathToIntake3);
+
+                autoState = AutoState.WAIT_FOR_INTAKE3_PATH;
+                break;
+
+            case WAIT_FOR_INTAKE3_PATH:
+                intake.setPower(FULL_SPEED);
+                stopFlywheel();
+
+                if (!follower.isBusy()) {
+                    intake.setPower(STOP_SPEED);
+                    stopFlywheel();
+
+                    autoState = AutoState.START_RETURN_PATH3;
+                }
+                break;
+
+            case START_RETURN_PATH3:
+                /*
+                 * Flywheel stays off while returning.
+                 * This prevents a collected ball from shooting early.
+                 */
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathBackToShot1);
+
+                autoState = AutoState.WAIT_FOR_RETURN_PATH3;
+                break;
+
+            case WAIT_FOR_RETURN_PATH3:
+                /*
+                 * Flywheel still stays off while the robot is moving back.
+                 */
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                if (!follower.isBusy()) {
+                    /*
+                     * CHANGE:
+                     * Only now, after the robot has reached the shooting pose,
+                     * spin up the flywheel for the second shooting sequence.
+                     */
+                    setLauncherSpeedForPose(SHOOT_POSE1);
+
+                    beginShooting(INTAKED_BALL_COUNT);
+                    autoState = AutoState.SHOOT_INTAKED_BALLS3;
+                }
+                break;
+
+            case SHOOT_INTAKED_BALLS3:
+                FlywheelStart();
 
                 if (updateShooter()) {
                     stopEverything();
@@ -308,34 +504,73 @@ public class FelixBlueFarSideAuto extends OpMode {
     }
 
     private void buildPaths() {
-        double redGoalHeading = headingToRedGoal(SHOOT_POSE);
+        double blueGoalHeading1 = headingToBlueGoal(SHOOT_POSE1);
+        double blueGoalHeading2 = headingToBlueGoal(SHOOT_POSE2);
 
-        Pose shootPoseFacingRed =
-                new Pose(SHOOT_POSE.getX(), SHOOT_POSE.getY(), redGoalHeading);
 
-        Pose shootPoseHeadingZero =
-                new Pose(SHOOT_POSE.getX(), SHOOT_POSE.getY(), Math.toRadians(0));
+        Pose shootPose1FacingBlue =
+                new Pose(SHOOT_POSE1.getX(), SHOOT_POSE1.getY(), blueGoalHeading1);
+
+        Pose shootPose1HeadingZero =
+                new Pose(SHOOT_POSE1.getX(), SHOOT_POSE1.getY(), Math.toRadians(0));
+        Pose shootPose2FacingBlue =
+                new Pose(SHOOT_POSE2.getX(), SHOOT_POSE2.getY(), blueGoalHeading1);
+
+        Pose shootPose2HeadingZero =
+                new Pose(SHOOT_POSE2.getX(), SHOOT_POSE2.getY(), Math.toRadians(0));
 
         pathToFirstShot = follower.pathBuilder()
-                .addPath(new BezierLine(START_POSE, shootPoseFacingRed))
+                .addPath(new BezierLine(START_POSE, shootPose1FacingBlue))
                 .setLinearHeadingInterpolation(
                         START_POSE.getHeading(),
-                        shootPoseFacingRed.getHeading()
+                        shootPose1FacingBlue.getHeading()
                 )
                 .build();
 
-        pathToIntake = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_POSE))
-                .setConstantHeadingInterpolation(Math.toRadians(0))
+        pathToIntake1 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPose1HeadingZero, INTAKE_POSE1))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
 
-        pathBackToShot = follower.pathBuilder()
-                .addPath(new BezierLine(INTAKE_POSE, shootPoseFacingRed))
+        pathBackToShot1 = follower.pathBuilder()
+                .addPath(new BezierLine(INTAKE_POSE1, shootPose1FacingBlue))
                 .setLinearHeadingInterpolation(
-                        INTAKE_POSE.getHeading(),
-                        shootPoseFacingRed.getHeading()
+                        INTAKE_POSE1.getHeading(),
+                        shootPose1FacingBlue.getHeading()
                 )
                 .build();
+        pathToIntake2 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPose1HeadingZero, INTAKE_POSE2))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+
+        pathBackToShot2 = follower.pathBuilder()
+                .addPath(new BezierLine(INTAKE_POSE1, shootPose1FacingBlue))
+                .setLinearHeadingInterpolation(
+                        INTAKE_POSE2.getHeading(),
+                        shootPose1FacingBlue.getHeading()
+                )
+                .build();
+        pathToIntake3 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPose1HeadingZero, INTAKE_POSE3))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+
+        pathBackToShot3 = follower.pathBuilder()
+                .addPath(new BezierLine(INTAKE_POSE3, shootPose2FacingBlue))
+                .setLinearHeadingInterpolation(
+                        INTAKE_POSE3.getHeading(),
+                        shootPose2HeadingZero.getHeading()
+                )
+                .build();
+        endsequence = follower.pathBuilder()
+                .addPath(new BezierLine(shootPose2FacingBlue, Final_POSE))
+                .setLinearHeadingInterpolation(
+                        shootPose2FacingBlue.getHeading(),
+                        Final_POSE.getHeading()
+                )
+                .build();
+
     }
 
     // --------------------------------------------------
@@ -497,12 +732,12 @@ public class FelixBlueFarSideAuto extends OpMode {
     // --------------------------------------------------
 
     private void setLauncherSpeedForPose(Pose pose) {
-        double distance = distanceToRedGoal(pose);
+        double distance = distanceToBlueGoal(pose);
         launcherTargetVelocity = velocityFromDistance(distance) + kOffset;
         launcher.setVelocity(launcherTargetVelocity);
     }
 
-    private void keepFlywheelReady() {
+    private void FlywheelStart() {
         setLauncherSpeedForPose(follower.getPose());
     }
 
@@ -515,17 +750,17 @@ public class FelixBlueFarSideAuto extends OpMode {
                 + 721.27595;
     }
 
-    private double headingToRedGoal(Pose pose) {
-        double dx = RED_GOAL_X - pose.getX();
-        double dy = RED_GOAL_Y - pose.getY();
+    private double headingToBlueGoal(Pose pose) {
+        double dx = BLUE_GOAL_X - pose.getX();
+        double dy = BLUE_GOAL_Y - pose.getY();
 
         return Math.atan2(dy, dx);
     }
 
-    private double distanceToRedGoal(Pose pose) {
+    private double distanceToBlueGoal(Pose pose) {
         return Math.hypot(
-                RED_GOAL_X - pose.getX(),
-                RED_GOAL_Y - pose.getY()
+                BLUE_GOAL_X - pose.getX(),
+                BLUE_GOAL_X - pose.getY()
         );
     }
 
@@ -539,14 +774,13 @@ public class FelixBlueFarSideAuto extends OpMode {
         telemetry.addData("Auto State", autoState);
         telemetry.addData("Shooter State", shooterState);
         telemetry.addData("Pose", formatPose(pose));
-        telemetry.addData("Distance to Red", "%.1f", distanceToRedGoal(pose));
+        telemetry.addData("Distance to BLUE", "%.1f", distanceToBlueGoal(pose));
         telemetry.addData("Target Velocity", "%.1f", launcherTargetVelocity);
         telemetry.addData("Actual Velocity", "%.1f", launcher.getVelocity());
         telemetry.addData("Ready to Shoot", flywheelIsReady());
-        telemetry.addData("Flywheel Timer", "%.2f", flywheelTimer.seconds());
-        telemetry.addData("Red Heading", "%.1f deg", Math.toDegrees(headingToRedGoal(pose)));
+        telemetry.addData("Blue Heading", "%.1f deg", Math.toDegrees(headingToBlueGoal(pose)));
         telemetry.addData("Heading Error to 0", "%.1f deg", Math.toDegrees(wrapRadians(pose.getHeading())));
-        telemetry.addData("Shots", "%d / %d", shotsFinished, shotsWanted);
+
         telemetry.update();
     }
 
