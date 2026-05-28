@@ -45,7 +45,7 @@ public class FelixBlueFarSideAuto extends OpMode {
     private static final Pose INTAKE_POSE1 = new Pose(17.926017053685545, 35.20321159296564, Math.toRadians(180));
     private static final Pose INTAKE_POSE2 = new Pose(18.403942154044213, 58.63321471656735, Math.toRadians(0));
     private static final Pose INTAKE_POSE3 = new Pose(18.547497741678697, 82.65809287816283, Math.toRadians(0));
-    private static final Pose Final_POSE = new Pose(45.17647969298073, 123.85283414832382, Math.toRadians(67))
+    private static final Pose Final_POSE = new Pose(45.17647969298073, 123.85283414832382, Math.toRadians(67));
 
     // -----------------------------
     // Shooter constants
@@ -432,7 +432,7 @@ public class FelixBlueFarSideAuto extends OpMode {
                 intake.setPower(STOP_SPEED);
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
-                follower.followPath(pathBackToShot1);
+                follower.followPath(pathBackToShot3);
 
                 autoState = AutoState.WAIT_FOR_RETURN_PATH3;
                 break;
@@ -467,7 +467,11 @@ public class FelixBlueFarSideAuto extends OpMode {
                 break;
 
             case DONE:
-                stopEverything();
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(endsequence);
+                if (!follower.isBusy()) {
+                    stopEverything();
+                }
                 break;
         }
 
@@ -514,7 +518,7 @@ public class FelixBlueFarSideAuto extends OpMode {
         Pose shootPose1HeadingZero =
                 new Pose(SHOOT_POSE1.getX(), SHOOT_POSE1.getY(), Math.toRadians(0));
         Pose shootPose2FacingBlue =
-                new Pose(SHOOT_POSE2.getX(), SHOOT_POSE2.getY(), blueGoalHeading1);
+                new Pose(SHOOT_POSE2.getX(), SHOOT_POSE2.getY(), blueGoalHeading2);
 
         Pose shootPose2HeadingZero =
                 new Pose(SHOOT_POSE2.getX(), SHOOT_POSE2.getY(), Math.toRadians(0));
