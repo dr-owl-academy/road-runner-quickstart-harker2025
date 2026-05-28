@@ -36,9 +36,9 @@ public class FelixBlueFarSideAuto extends OpMode {
     private static final double BLUE_GOAL_X = 14.5;
     private static final double BLUE_GOAL_Y = 129.5;
 
-    private static final Pose START_POSE = new Pose(55.66705882352941, 13.859411764705877, Math.toRadians(90));
+    private static final Pose START_POSE = new Pose(48, 9.3, Math.toRadians(90));
 
-    private static final Pose SHOOT_POSE1 = new Pose(61.99294117647059, 82.161, Math.toRadians(110));
+    private static final Pose SHOOT_POSE1 = new Pose(61.99294117647059, 13.859411764705877, Math.toRadians(110));
 
     private static final Pose SHOOT_POSE2 = new Pose(42.11045125602347, 98.71230941704215, Math.toRadians(135));
 
