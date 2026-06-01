@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -37,11 +38,21 @@ public class NathanAuton extends OpMode {
     private static final double BLUE_GOAL_Y = 129.5;
 
     private static final Pose START_POSE = new Pose(34.10338101430428, 133.12353706111833, Math.toRadians(90));
+    private static final Pose END_POSE = new Pose(51.69386657655304, 17.31452071464019, Math.toRadians(130));
 
-    private static final Pose SHOOT_POSE_1 = new Pose(58.88166449934979, 82.43433029908974, Math.toRadians(90));
+    private static final Pose SHOOT_POSE_1 = new Pose(58.88166449934979, 82.43433029908974, Math.toRadians(0));
     private static final Pose SHOOT_POSE_2 = new Pose(54.8242243047646,15.229752933096522, Math.toRadians(130));
 
-    private static final Pose INTAKE_POSE_1 = new Pose(113.66, 82.161, Math.toRadians(0));
+    private static final Pose INTAKE_END_1 = new Pose(23.478982300884958, 82.43433029908974, Math.toRadians(180));
+    private static final Pose INTAKE_START_2 = new Pose(19.32054616384916,75.99414824447332, Math.toRadians(180));
+    private static final Pose INTAKE_END_2 = new Pose(15.072513455143635,75.99414824447332,Math.toRadians(180));
+    private static final Pose INTAKE_START_3 = new Pose(42.816827425266084,58.99624757995533,Math.toRadians(180));
+    private static final Pose INTAKE_END_3 = new Pose(23.760700025574927,58.99624757995533,Math.toRadians(180));
+    private static final Pose INTAKE_START_4 = new Pose(42.007854263517146,34.59819897175125,Math.toRadians(180));
+    private static final Pose INTAKE_END_4 = new Pose(23.920676202860857,34.59819897175125,Math.toRadians(180));
+
+
+
 
     // -----------------------------
     // Shooter constants
@@ -52,8 +63,8 @@ public class NathanAuton extends OpMode {
     private static final double FEED_TIME_SECONDS = 0.20;
     private static final double TIME_BETWEEN_SHOTS_SECONDS = 0.35;
 
-    private static final int PRELOAD_BALL_COUNT = 3;
-    private static final int INTAKED_BALL_COUNT = 3;
+    private static final int PRELOAD_BALL_COUNT = 2;
+    private static final int INTAKED_BALL_COUNT = 2;
 
     /*
      * CHANGE:
@@ -97,8 +108,18 @@ public class NathanAuton extends OpMode {
     // Paths
     // -----------------------------
     private PathChain pathToFirstShot;
-    private PathChain pathToIntake;
+    private PathChain pathToIntake2;
+    private PathChain pathToIntake3;
+    private PathChain pathToIntake4;
+    private PathChain pathToFinalShot;
+    private PathChain pathToFinalPosition;
     private PathChain pathBackToShot;
+    private PathChain pathBackToShot2;
+    private PathChain pathBackToShot3;
+    private PathChain pathEndIntake1;
+    private PathChain pathEndIntake2;
+    private PathChain pathEndIntake3;
+    private PathChain pathEndIntake4;
 
     // -----------------------------
     // State machine variables
@@ -124,8 +145,27 @@ public class NathanAuton extends OpMode {
         START_INTAKE_PATH,
         WAIT_FOR_INTAKE_PATH,
         START_RETURN_PATH,
+        START_RETURN_PATH2,
+        START_RETURN_PATH3,
+        START_RETURN_PATH4,
         WAIT_FOR_RETURN_PATH,
+        WAIT_FOR_RETURN_PATH2,
+        WAIT_FOR_RETURN_PATH3,
+        WAIT_FOR_RETURN_PATH4,
         SHOOT_INTAKED_BALLS,
+        SHOOT_INTAKED_BALLS2,
+        SHOOT_INTAKED_BALLS3,
+        SHOOT_INTAKED_BALLS4,
+        START_INTAKE_PATH_2,
+        END_INTAKE_PATH_2,
+        START_INTAKE_PATH_3,
+        END_INTAKE_PATH_3,
+        START_INTAKE_PATH_4,
+        END_INTAKE_PATH_4,
+        MOVE_TO_END,
+        WHILE_MOVING_END,
+        SHOOT_END,
+        END_POSITION,
         DONE
     }
 
@@ -211,7 +251,7 @@ public class NathanAuton extends OpMode {
                 stopFlywheel();
 
                 follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
-                follower.followPath(pathToIntake);
+                follower.followPath(pathEndIntake1);
 
                 autoState = AutoState.WAIT_FOR_INTAKE_PATH;
                 break;
@@ -267,10 +307,179 @@ public class NathanAuton extends OpMode {
 
                 if (updateShooter()) {
                     stopEverything();
-                    autoState = AutoState.DONE;
+                    autoState = AutoState.START_INTAKE_PATH_2;
                 }
                 break;
+            case START_INTAKE_PATH_2:
 
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathToIntake2);
+                autoState = AutoState.END_INTAKE_PATH_2;
+                break;
+            case END_INTAKE_PATH_2:
+                intake.setPower(1);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathEndIntake2);
+                autoState = AutoState.START_RETURN_PATH2;
+                break;
+            case START_INTAKE_PATH_3:
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathToIntake3);
+                autoState = AutoState.END_INTAKE_PATH_3;
+                break;
+            case END_INTAKE_PATH_3:
+                intake.setPower(1);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathEndIntake3);
+                autoState = AutoState.START_RETURN_PATH3;
+                break;
+            case START_INTAKE_PATH_4:
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathToIntake4);
+                autoState = AutoState.END_INTAKE_PATH_2;
+                break;
+            case END_INTAKE_PATH_4:
+                intake.setPower(1);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathEndIntake4);
+                autoState = AutoState.START_RETURN_PATH4;
+                break;
+            case START_RETURN_PATH2:
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathBackToShot2);
+
+                autoState = AutoState.WAIT_FOR_RETURN_PATH2;
+                break;
+            case START_RETURN_PATH3:
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathBackToShot3);
+
+                autoState = AutoState.WAIT_FOR_RETURN_PATH3;
+                break;
+            case START_RETURN_PATH4:
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathToFinalShot);
+
+                autoState = AutoState.WAIT_FOR_RETURN_PATH4;
+                break;
+            case WAIT_FOR_RETURN_PATH2:
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                if (!follower.isBusy()) {
+                    /*
+                     * CHANGE:
+                     * Only now, after the robot has reached the shooting pose,
+                     * spin up the flywheel for the second shooting sequence.
+                     */
+                    setLauncherSpeedForPose(SHOOT_POSE_1);
+
+                    beginShooting(INTAKED_BALL_COUNT);
+                    autoState = AutoState.SHOOT_INTAKED_BALLS2;
+                }
+                break;
+            case WAIT_FOR_RETURN_PATH3:
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                if (!follower.isBusy()) {
+                    /*
+                     * CHANGE:
+                     * Only now, after the robot has reached the shooting pose,
+                     * spin up the flywheel for the second shooting sequence.
+                     */
+                    setLauncherSpeedForPose(SHOOT_POSE_1);
+
+                    beginShooting(INTAKED_BALL_COUNT);
+                    autoState = AutoState.SHOOT_INTAKED_BALLS3;
+                }
+                break;
+            case WAIT_FOR_RETURN_PATH4:
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                if (!follower.isBusy()) {
+                    /*
+                     * CHANGE:
+                     * Only now, after the robot has reached the shooting pose,
+                     * spin up the flywheel for the second shooting sequence.
+                     */
+                    setLauncherSpeedForPose(SHOOT_POSE_1);
+
+                    beginShooting(INTAKED_BALL_COUNT);
+                    autoState = AutoState.SHOOT_INTAKED_BALLS4;
+                }
+                break;
+            case SHOOT_INTAKED_BALLS2:
+                keepFlywheelReady();
+
+                if (updateShooter()) {
+                    stopEverything();
+                    autoState = AutoState.START_INTAKE_PATH_3;
+                }
+                break;
+            case SHOOT_INTAKED_BALLS3:
+                keepFlywheelReady();
+
+                if (updateShooter()) {
+                    stopEverything();
+                    autoState = AutoState.START_INTAKE_PATH_4;
+                }
+                break;
+            case SHOOT_INTAKED_BALLS4:
+                keepFlywheelReady();
+
+                if (updateShooter()) {
+                    stopEverything();
+                    autoState = AutoState.END_POSITION;
+                }
+                break;
+            case MOVE_TO_END:
+                stopFlywheel();
+                intake.setPower(STOP_SPEED);
+
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathBackToShot);
+                autoState = AutoState.WHILE_MOVING_END;
+                break;
+            case WHILE_MOVING_END:
+                intake.setPower(FULL_SPEED);
+                stopFlywheel();
+
+                if (!follower.isBusy()) {
+                intake.setPower(STOP_SPEED);
+                stopFlywheel();
+
+                autoState = AutoState.SHOOT_END;
+            }
+                break;
+            case SHOOT_END:
+                keepFlywheelReady();
+
+                if (updateShooter()) {
+                    stopEverything();
+                    autoState = AutoState.END_POSITION;
+                }
+                break;
+            case END_POSITION:
+                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.followPath(pathToFinalPosition);
+                autoState = autoState.DONE;
+                break;
             case DONE:
                 stopEverything();
                 break;
@@ -325,18 +534,68 @@ public class NathanAuton extends OpMode {
                 )
                 .build();
 
-        pathToIntake = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_POSE_1))
-                .setConstantHeadingInterpolation(Math.toRadians(0))
-                .build();
-
         pathBackToShot = follower.pathBuilder()
-                .addPath(new BezierLine(INTAKE_POSE_1, shootPoseFacingBlue))
+                .addPath(new BezierLine(INTAKE_END_1, shootPoseFacingBlue))
                 .setLinearHeadingInterpolation(
-                        INTAKE_POSE_1.getHeading(),
+                        INTAKE_END_1.getHeading(),
                         shootPoseFacingBlue.getHeading()
                 )
                 .build();
+        pathBackToShot2 = follower.pathBuilder()
+                .addPath(new BezierLine(INTAKE_END_2, shootPoseFacingBlue))
+                .setLinearHeadingInterpolation(
+                        INTAKE_END_2.getHeading(),
+                        shootPoseFacingBlue.getHeading()
+                )
+                .build();
+        pathBackToShot3 = follower.pathBuilder()
+                .addPath(new BezierLine(INTAKE_END_3, shootPoseFacingBlue))
+                .setLinearHeadingInterpolation(
+                        INTAKE_END_3.getHeading(),
+                        shootPoseFacingBlue.getHeading()
+                )
+                .build();
+        pathToIntake2 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_2))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        pathToIntake3 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_3))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        pathToIntake4 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_4))
+                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+        pathToFinalShot = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, SHOOT_POSE_2))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .setLinearHeadingInterpolation(
+                        SHOOT_POSE_2.getHeading(),
+                        shootPoseFacingBlue.getHeading()
+                )
+                .build();
+        pathToFinalPosition = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, END_POSE))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .build();
+        pathEndIntake1 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, SHOOT_POSE_1))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .build();
+        pathEndIntake2 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_2))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .build();
+        pathEndIntake3 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_3))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .build();
+        pathEndIntake4 = follower.pathBuilder()
+                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_4))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .build();
+
     }
 
     // --------------------------------------------------
