@@ -568,10 +568,10 @@ public class NathanAuton extends OpMode {
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         pathToFinalShot = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, SHOOT_POSE_2))
+                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_END_4))
                 .setConstantHeadingInterpolation(Math.toRadians(130))
                 .setLinearHeadingInterpolation(
-                        SHOOT_POSE_2.getHeading(),
+                        INTAKE_END_4.getHeading(),
                         shootPoseFacingBlue.getHeading()
                 )
                 .build();
