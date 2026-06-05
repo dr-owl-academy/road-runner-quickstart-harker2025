@@ -340,7 +340,7 @@ public class NathanAuton extends OpMode {
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
                 follower.followPath(pathToIntake4);
-                autoState = AutoState.END_INTAKE_PATH_2;
+                autoState = AutoState.END_INTAKE_PATH_4;
                 break;
             case END_INTAKE_PATH_4:
                 intake.setPower(1);
@@ -526,6 +526,9 @@ public class NathanAuton extends OpMode {
         Pose shootPoseHeadingZero =
                 new Pose(SHOOT_POSE_1.getX(), SHOOT_POSE_1.getY(), Math.toRadians(0));
 
+        Pose shootPoseFarBlue =
+                new Pose(SHOOT_POSE_2.getX(),SHOOT_POSE_2.getY(), Math.toRadians(0));
+
         pathToFirstShot = follower.pathBuilder()
                 .addPath(new BezierLine(START_POSE, shootPoseFacingBlue))
                 .setLinearHeadingInterpolation(
@@ -568,7 +571,7 @@ public class NathanAuton extends OpMode {
                 .setConstantHeadingInterpolation(Math.toRadians(180))
                 .build();
         pathToFinalShot = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_END_4))
+                .addPath(new BezierLine(shootPoseFarBlue, INTAKE_END_4))
                 .setConstantHeadingInterpolation(Math.toRadians(130))
                 .setLinearHeadingInterpolation(
                         INTAKE_END_4.getHeading(),
@@ -576,23 +579,23 @@ public class NathanAuton extends OpMode {
                 )
                 .build();
         pathToFinalPosition = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, END_POSE))
+                .addPath(new BezierLine(INTAKE_END_4, END_POSE))
                 .setConstantHeadingInterpolation(Math.toRadians(130))
                 .build();
         pathEndIntake1 = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, SHOOT_POSE_1))
+                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_END_1))
                 .setConstantHeadingInterpolation(Math.toRadians(130))
                 .build();
         pathEndIntake2 = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_2))
+                .addPath(new BezierLine(INTAKE_START_2, INTAKE_END_2))
                 .setConstantHeadingInterpolation(Math.toRadians(130))
                 .build();
         pathEndIntake3 = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_3))
+                .addPath(new BezierLine(INTAKE_START_3, INTAKE_END_3))
                 .setConstantHeadingInterpolation(Math.toRadians(130))
                 .build();
         pathEndIntake4 = follower.pathBuilder()
-                .addPath(new BezierLine(shootPoseHeadingZero, INTAKE_START_4))
+                .addPath(new BezierLine(INTAKE_START_4, INTAKE_END_4))
                 .setConstantHeadingInterpolation(Math.toRadians(130))
                 .build();
 
