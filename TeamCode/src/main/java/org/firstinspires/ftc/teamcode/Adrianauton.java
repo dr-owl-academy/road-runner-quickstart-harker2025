@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -37,9 +38,9 @@ public class Adrianauton extends OpMode {
     private static final double RED_GOAL_X = 130.0;
     private static final double RED_GOAL_Y = 130.0;
 
-    private static final Pose START_POSE = new Pose(107.935, 132.775, Math.toRadians(90));
+    private static final Pose START_POSE = new Pose(70.0671342111722,71.23928077455048 , Math.toRadians(90));
 
-    private static final Pose SHOOT_POSE = new Pose(91.870, 82.161, Math.toRadians(90));
+    private static final Pose SHOOT_POSE = new Pose(70.0671342111722, 71.23928077455048, Math.toRadians(90));
 
     private static final Pose INTAKE_POSE = new Pose(113.66, 82.161, Math.toRadians(0));
 
@@ -309,11 +310,59 @@ public class Adrianauton extends OpMode {
         stopFlywheel();
         intake.setPower(STOP_SPEED);
     }
+    double redGoalHeading = headingToRedGoal(SHOOT_POSE);
 
     private void buildPaths() {
-        double redGoalHeading = headingToRedGoal(SHOOT_POSE);
 
-        Pose shootPoseFacingRed =
+
+        PathChain MainChain = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(70.067, 71.239,redGoalHeading),
+                                new Pose(46.019, 81.210,redGoalHeading)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
+                .addPath(
+                        new BezierLine(
+                                new Pose(46.019, 81.210,redGoalHeading),
+                                new Pose(21.563, 81.752,redGoalHeading)
+                        )
+                )
+                .setTangentHeadingInterpolation()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(21.563, 81.752,redGoalHeading),
+                                new Pose(42.696, 74.811,redGoalHeading),
+                                new Pose(71.829, 69.869,redGoalHeading)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(120))
+                .addPath(
+                        new BezierLine(
+                                new Pose(71.829, 69.869,redGoalHeading),
+                                new Pose(33.311, 58.809,redGoalHeading)
+                        )
+                )
+                .setTangentHeadingInterpolation()
+                .addPath(
+                        new BezierLine(
+                                new Pose(33.311, 58.809),
+                                new Pose(21.632, 58.664)
+                        )
+                )
+                .setTangentHeadingInterpolation()
+                .addPath(
+                        new BezierLine(
+                                new Pose(21.632, 58.664),
+                                new Pose(70.736, 71.021)
+                        )
+                )
+                .setTangentHeadingInterpolation()
+                .build();
+
+
+        /*Pose shootPoseFacingRed =
                 new Pose((Double) SHOOT_POSE.getX(), (Double) SHOOT_POSE.getY(), redGoalHeading);
 
         Pose shootPoseHeadingZero =
@@ -339,6 +388,8 @@ public class Adrianauton extends OpMode {
                         shootPoseFacingRed.getHeading()
                 )
                 .build();
+        */
+
     }
 
     // --------------------------------------------------
@@ -526,9 +577,10 @@ public class Adrianauton extends OpMode {
     }
 
     private double distanceToRedGoal(Pose pose) {
-
+        return Math.hypot(
                 RED_GOAL_X - pose.getX(),
-                RED_GOAL_Y - pose.getY();
+                RED_GOAL_Y - pose.getY()
+        );
     }
 
     // --------------------------------------------------
@@ -560,7 +612,7 @@ public class Adrianauton extends OpMode {
                 Math.toDegrees(pose.getHeading())
         );
     }
-
+/*
     private static class Pose {
         public Pose(double v, double v1, double radians) {
         }
@@ -577,4 +629,5 @@ public class Adrianauton extends OpMode {
             return 0;
         }
     }
+ */
 }
