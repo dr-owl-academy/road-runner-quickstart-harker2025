@@ -40,7 +40,7 @@ public class NathanAuton extends OpMode {
     private static final Pose START_POSE = new Pose(34.10338101430428, 133.12353706111833, Math.toRadians(90));
     private static final Pose END_POSE = new Pose(51.69386657655304, 17.31452071464019, Math.toRadians(130));
 
-    private static final Pose SHOOT_POSE_1 = new Pose(58.88166449934979, 82.43433029908974, Math.toRadians(0));
+    private static final Pose SHOOT_POSE_1 = new Pose(58.88166449934979, 82.43433029908974, Math.toRadians(135));
     private static final Pose SHOOT_POSE_2 = new Pose(54.8242243047646,15.229752933096522, Math.toRadians(130));
 
     private static final Pose INTAKE_END_1 = new Pose(23.478982300884958, 82.43433029908974, Math.toRadians(180));
@@ -50,6 +50,9 @@ public class NathanAuton extends OpMode {
     private static final Pose INTAKE_END_3 = new Pose(23.760700025574927,58.99624757995533,Math.toRadians(180));
     private static final Pose INTAKE_START_4 = new Pose(42.007854263517146,34.59819897175125,Math.toRadians(180));
     private static final Pose INTAKE_END_4 = new Pose(23.920676202860857,34.59819897175125,Math.toRadians(180));
+
+    private static final Pose OPEN_GATE1 = new Pose(20.381087548901053, 75.64813059953475,Math.toRadians((180)));
+    private static final Pose OPEN_GATE2 = new Pose(15, 75.64813059953475,Math.toRadians((180)));
 
 
 
@@ -113,13 +116,15 @@ public class NathanAuton extends OpMode {
     private PathChain pathToIntake4;
     private PathChain pathToFinalShot;
     private PathChain pathToFinalPosition;
-    private PathChain pathBackToShot;
     private PathChain pathBackToShot2;
     private PathChain pathBackToShot3;
     private PathChain pathEndIntake1;
     private PathChain pathEndIntake2;
     private PathChain pathEndIntake3;
     private PathChain pathEndIntake4;
+    private PathChain pathToGate;
+    private PathChain pathInGate;
+    private PathChain pathBackFromGate;
 
     // -----------------------------
     // State machine variables
@@ -166,6 +171,12 @@ public class NathanAuton extends OpMode {
         WHILE_MOVING_END,
         SHOOT_END,
         END_POSITION,
+        wait2,
+        wait3,
+        wait4,
+        GATE_READY,
+        GATE_OPEN,
+        GATE_WAIT,
         DONE
     }
 
@@ -264,8 +275,30 @@ public class NathanAuton extends OpMode {
                     intake.setPower(STOP_SPEED);
                     stopFlywheel();
 
-                    autoState = AutoState.START_RETURN_PATH;
+                    autoState = AutoState.GATE_READY;
                 }
+                break;
+            case GATE_READY:
+                intake.setPower(0);
+                stopFlywheel();
+
+                follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
+                follower.followPath(pathToGate);
+
+                autoState = AutoState.GATE_WAIT;
+                break;
+            case GATE_WAIT:
+                if (!follower.isBusy()) {
+                    autoState = AutoState.GATE_OPEN;
+                }
+            case GATE_OPEN:
+                intake.setPower(0);
+                stopFlywheel();
+
+                follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
+                follower.followPath(pathInGate);
+
+                autoState = AutoState.START_RETURN_PATH;
                 break;
 
             case START_RETURN_PATH:
@@ -277,7 +310,7 @@ public class NathanAuton extends OpMode {
                 intake.setPower(STOP_SPEED);
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
-                follower.followPath(pathBackToShot);
+                follower.followPath(pathBackFromGate);
 
                 autoState = AutoState.WAIT_FOR_RETURN_PATH;
                 break;
@@ -314,7 +347,22 @@ public class NathanAuton extends OpMode {
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
                 follower.followPath(pathToIntake2);
-                autoState = AutoState.END_INTAKE_PATH_2;
+                autoState = AutoState.wait2;
+                break;
+            case wait2:
+                if (!follower.isBusy()) {
+                    autoState = AutoState.START_RETURN_PATH2;
+                }
+                break;
+            case wait3:
+                if (!follower.isBusy()) {
+                    autoState = AutoState.START_RETURN_PATH3;
+                }
+                break;
+            case wait4:
+                if (!follower.isBusy()) {
+                    autoState = AutoState.START_RETURN_PATH4;
+                }
                 break;
             case END_INTAKE_PATH_2:
                 intake.setPower(1);
@@ -327,7 +375,7 @@ public class NathanAuton extends OpMode {
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
                 follower.followPath(pathToIntake3);
-                autoState = AutoState.END_INTAKE_PATH_3;
+                autoState = AutoState.wait3;
                 break;
             case END_INTAKE_PATH_3:
                 intake.setPower(1);
@@ -340,7 +388,7 @@ public class NathanAuton extends OpMode {
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
                 follower.followPath(pathToIntake4);
-                autoState = AutoState.END_INTAKE_PATH_4;
+                autoState = AutoState.wait4;
                 break;
             case END_INTAKE_PATH_4:
                 intake.setPower(1);
@@ -453,7 +501,7 @@ public class NathanAuton extends OpMode {
                 intake.setPower(STOP_SPEED);
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
-                follower.followPath(pathBackToShot);
+                follower.followPath(pathToFinalShot);
                 autoState = AutoState.WHILE_MOVING_END;
                 break;
             case WHILE_MOVING_END:
@@ -537,13 +585,6 @@ public class NathanAuton extends OpMode {
                 )
                 .build();
 
-        pathBackToShot = follower.pathBuilder()
-                .addPath(new BezierLine(INTAKE_END_1, shootPoseFacingBlue))
-                .setLinearHeadingInterpolation(
-                        INTAKE_END_1.getHeading(),
-                        shootPoseFacingBlue.getHeading()
-                )
-                .build();
         pathBackToShot2 = follower.pathBuilder()
                 .addPath(new BezierLine(INTAKE_END_2, shootPoseFacingBlue))
                 .setLinearHeadingInterpolation(
@@ -596,6 +637,18 @@ public class NathanAuton extends OpMode {
                 .build();
         pathEndIntake4 = follower.pathBuilder()
                 .addPath(new BezierLine(INTAKE_START_4, INTAKE_END_4))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .build();
+        pathToGate = follower.pathBuilder()
+                .addPath(new BezierLine(INTAKE_END_1, OPEN_GATE1))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .build();
+        pathInGate = follower.pathBuilder()
+                .addPath(new BezierLine(OPEN_GATE1, OPEN_GATE2))
+                .setConstantHeadingInterpolation(Math.toRadians(130))
+                .build();
+        pathBackFromGate = follower.pathBuilder()
+                .addPath(new BezierLine(OPEN_GATE2, shootPoseHeadingZero))
                 .setConstantHeadingInterpolation(Math.toRadians(130))
                 .build();
 
