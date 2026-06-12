@@ -346,15 +346,16 @@ public class AdrianStarterbotTeleop extends OpMode {
         angleError = Math.atan2(Math.sin(angleError),
                 Math.cos(angleError));
 
-        return -kturn*angleError;
+
 
         targetAngledegrees = targetAngle * 57.2958;
 
         if (gamepad2.right_bumper) {
-            driverturn = spintoRed(pose);
+            driverturn = spintoRed(pose2d);
         } else {
             driverturn = gamepad2.right_stick_x;
         }
+        return -kturn*angleError;
 
 
 

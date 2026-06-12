@@ -54,6 +54,7 @@ public class Adrianauton extends OpMode {
     private static final double TIME_BETWEEN_SHOTS_SECONDS = 0.35;
 
     private static final int PRELOAD_BALL_COUNT = 3;
+    //hfgfhgfgfg
     private static final int INTAKED_BALL_COUNT = 3;
 
     /*
