@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.util.Range;
 /**/
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Coach Red Near Side Auto", group = "StarterBot")
+@Autonomous(name = "Adrianauton", group = "StarterBot")
 public class Adrianauton extends OpMode {
 
 
@@ -56,6 +56,7 @@ public class Adrianauton extends OpMode {
     private static final int PRELOAD_BALL_COUNT = 3;
     //hfgfhgfgfg
     private static final int INTAKED_BALL_COUNT = 3;
+
 
     /*
      * CHANGE:
@@ -167,6 +168,8 @@ public class Adrianauton extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        String msg = "";
+
 
         switch (autoState) {
 
@@ -177,16 +180,17 @@ public class Adrianauton extends OpMode {
                 follower.followPath(pathToFirstShot);
 
                 autoState = AutoState.WAIT_FOR_FIRST_PATH;
+                msg = "path to shot 1";
                 break;
 
-            case WAIT_FOR_FIRST_PATH:
+            /*case WAIT_FOR_FIRST_PATH:
                 keepFlywheelReady();
 
                 if (!follower.isBusy()) {
                     beginShooting(PRELOAD_BALL_COUNT);
                     autoState = AutoState.SHOOT_PRELOADS;
                 }
-                break;
+                break;*/
 
             case SHOOT_PRELOADS:
                 keepFlywheelReady();
@@ -213,6 +217,7 @@ public class Adrianauton extends OpMode {
             case START_INTAKE_PATH:
                 intake.setPower(FULL_SPEED);
                 stopFlywheel();
+                msg = "intake";
 
                 follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
                 follower.followPath(pathToIntake);
@@ -239,6 +244,7 @@ public class Adrianauton extends OpMode {
                  */
                 stopFlywheel();
                 intake.setPower(STOP_SPEED);
+                msg = "return";
 
                 follower.setMaxPower(NORMAL_PATH_POWER);
                 follower.followPath(pathBackToShot);
@@ -280,7 +286,7 @@ public class Adrianauton extends OpMode {
                 break;
         }
 
-        showTelemetry();
+        showTelemetry(msg);
     }
 
     @Override
@@ -314,7 +320,7 @@ public class Adrianauton extends OpMode {
     double redGoalHeading = headingToRedGoal(SHOOT_POSE);
 
     private void buildPaths() {
-
+    telemetry.addData("Status","on path");
 
         PathChain MainChain = follower.pathBuilder()
                 .addPath(
@@ -363,7 +369,7 @@ public class Adrianauton extends OpMode {
                 .build();
 
 
-        /*Pose shootPoseFacingRed =
+        Pose shootPoseFacingRed =
                 new Pose((Double) SHOOT_POSE.getX(), (Double) SHOOT_POSE.getY(), redGoalHeading);
 
         Pose shootPoseHeadingZero =
@@ -389,7 +395,7 @@ public class Adrianauton extends OpMode {
                         shootPoseFacingRed.getHeading()
                 )
                 .build();
-        */
+
 
     }
 
@@ -588,7 +594,7 @@ public class Adrianauton extends OpMode {
     // Telemetry
     // --------------------------------------------------
 
-    private void showTelemetry() {
+    private void showTelemetry(String msg) {
         Pose pose = follower.getPose();
 
         telemetry.addData("Auto State", autoState);
@@ -602,6 +608,7 @@ public class Adrianauton extends OpMode {
         telemetry.addData("Red Heading", "%.1f deg", Math.toDegrees(headingToRedGoal(pose)));
         telemetry.addData("Heading Error to 0", "%.1f deg", Math.toDegrees(wrapRadians(pose.getHeading())));
         telemetry.addData("Shots", "%d / %d", shotsFinished, shotsWanted);
+        telemetry.addData("Message", msg);
         telemetry.update();
     }
 
