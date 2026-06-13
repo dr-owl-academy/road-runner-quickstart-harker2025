@@ -826,12 +826,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
         return Math.atan2(dy, dx);
     }
-    private double headingToBlueGoal1(Pose pose) {
-        double dx = BLUE_GOAL_X - SHOOT_POSE2.getX();
-        double dy = BLUE_GOAL_Y - SHOOT_POSE2.getY();
 
-        return Math.atan2(dy, dx);
-    }
 
     private double distanceToBlueGoal(Pose pose) {
         return Math.hypot(
