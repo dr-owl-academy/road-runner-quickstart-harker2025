@@ -627,7 +627,7 @@ public class FelixBlueFarSideAuto extends OpMode {
                 .addPath(new BezierLine(INTAKE_POSE3, shootPose2FacingBlue))
                 .setLinearHeadingInterpolation(
                         INTAKE_POSE3.getHeading(),
-                        shootPose2HeadingZero.getHeading()
+                        shootPose2FacingBlue.getHeading()
                 )
                 .build();
         endsequence = follower.pathBuilder()
