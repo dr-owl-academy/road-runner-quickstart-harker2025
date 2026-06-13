@@ -57,7 +57,7 @@ public class FelixBlueFarSideAuto extends OpMode {
     private static final double STOP_SPEED = 0.0;
 
     private static final double FEED_TIME_SECONDS = 0.20;
-    private static final double TIME_BETWEEN_SHOTS_SECONDS = 0.75;
+    private static final double TIME_BETWEEN_SHOTS_SECONDS = 1.00;
 
     private static final int PRELOAD_BALL_COUNT = 2;
     private static final int INTAKED_BALL_COUNT = 2;
@@ -70,7 +70,7 @@ public class FelixBlueFarSideAuto extends OpMode {
      * If the robot waits too long, increase this number slightly.
      * If the robot still shoots too weakly, decrease this number.
      */
-    private static final double SHOOTER_READY_TOLERANCE = 50.0;
+    private static final double SHOOTER_READY_TOLERANCE = 20.0;
 
     /*
      * CHANGE:
@@ -313,7 +313,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
             case SHOOT_INTAKED_BALLS1:
                 FlywheelStart();
-                intake.setPower(FULL_SPEED);
+
                 if (updateShooter()) {
                     stopEverything();
                     autoState = AutoState.SHOOT_STOP2;
@@ -408,7 +408,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
             case SHOOT_INTAKED_BALLS2:
                 FlywheelStart();
-                intake.setPower(FULL_SPEED);
+
 
                 if (updateShooter()) {
                     stopEverything();
@@ -556,7 +556,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
     private void buildPaths() {
         double blueGoalHeading1 = headingToBlueGoal(SHOOT_POSE1);
-        double blueGoalHeading2 = headingToBlueGoal1(SHOOT_POSE2);
+        double blueGoalHeading2 = headingToBlueGoal(SHOOT_POSE2);
 
 
         Pose shootPose1FacingBlue =
@@ -814,10 +814,10 @@ public class FelixBlueFarSideAuto extends OpMode {
     private double velocityFromDistance(double x) {
         x = Math.max(18, x);
 
-        return 0.000764989 * x * x * x
-                - 0.216997 * x * x
-                + 24.42148 * x
-                + 721.27595;
+        return -0.000744119 * x * x * x
+                +0.228351 * x * x
+                -15.52643 * x
+                +1716.40744;
     }
 
     private double headingToBlueGoal(Pose pose) {
