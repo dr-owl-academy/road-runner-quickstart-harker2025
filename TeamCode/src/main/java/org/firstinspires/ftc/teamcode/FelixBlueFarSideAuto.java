@@ -86,7 +86,7 @@ public class FelixBlueFarSideAuto extends OpMode {
     // Path speed constants
     // -----------------------------
     private static final double NORMAL_PATH_POWER = 1;
-    private static final double SLOW_INTAKE_PATH_POWER = 0.40;
+    private static final double SLOW_INTAKE_PATH_POWER = 0.10;
 
     // -----------------------------
     // Turn-to-zero constants
@@ -192,7 +192,7 @@ public class FelixBlueFarSideAuto extends OpMode {
             case START_PATH_TO_FIRST_SHOT:
                 setLauncherSpeedForPose(SHOOT_POSE1);
 
-                follower.setMaxPower(NORMAL_PATH_POWER);
+                follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
                 follower.followPath(pathToFirstShot);
 
                 autoState = AutoState.SHOOT_FIRST_SHOT;
@@ -376,7 +376,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
                 if (updateShooter()) {
                     stopEverything();
-                    autoState = AutoState.DONE;
+                    autoState = AutoState.SHOOT_STOP3;
                 }
                 break;
             case SHOOT_STOP3:
@@ -764,7 +764,7 @@ public class FelixBlueFarSideAuto extends OpMode {
     private double distanceToBlueGoal(Pose pose) {
         return Math.hypot(
                 BLUE_GOAL_X - pose.getX(),
-                BLUE_GOAL_X - pose.getY()
+                BLUE_GOAL_Y - pose.getY()
         );
     }
 
