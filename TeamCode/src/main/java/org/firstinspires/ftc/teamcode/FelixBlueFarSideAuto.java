@@ -845,13 +845,14 @@ public class FelixBlueFarSideAuto extends OpMode {
         telemetry.addData("Auto State", autoState);
         telemetry.addData("Shooter State", shooterState);
         telemetry.addData("Pose", formatPose(pose));
-        telemetry.addData("Distance to BLUE", "%.1f", distanceToBlueGoal(pose));
+        telemetry.addData("Distance to Blue", "%.1f", distanceToBlueGoal(pose));
         telemetry.addData("Target Velocity", "%.1f", launcherTargetVelocity);
         telemetry.addData("Actual Velocity", "%.1f", launcher.getVelocity());
         telemetry.addData("Ready to Shoot", flywheelIsReady());
+        telemetry.addData("Flywheel Timer", "%.2f", flywheelTimer.seconds());
         telemetry.addData("Blue Heading", "%.1f deg", Math.toDegrees(headingToBlueGoal(pose)));
         telemetry.addData("Heading Error to 0", "%.1f deg", Math.toDegrees(wrapRadians(pose.getHeading())));
-
+        telemetry.addData("Shots", "%d / %d", shotsFinished, shotsWanted);
         telemetry.update();
     }
 
@@ -862,5 +863,4 @@ public class FelixBlueFarSideAuto extends OpMode {
                 pose.getY(),
                 Math.toDegrees(pose.getHeading())
         );
-    }
 }
