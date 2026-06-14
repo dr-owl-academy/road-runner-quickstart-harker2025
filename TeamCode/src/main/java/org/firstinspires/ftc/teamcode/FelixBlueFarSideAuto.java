@@ -71,7 +71,7 @@ public class FelixBlueFarSideAuto extends OpMode {
      * If the robot waits too long, increase this number slightly.
      * If the robot still shoots too weakly, decrease this number.
      */
-    private static final double SHOOTER_READY_TOLERANCE = 20.0;
+    private static final double SHOOTER_READY_TOLERANCE = 10.0;
 
     /*
      * CHANGE:
@@ -729,9 +729,9 @@ public class FelixBlueFarSideAuto extends OpMode {
                 break;
 
             case WAIT_BETWEEN_BALLS:
+                intake.setPower(STOP_SPEED);
                 if (shotTimer.seconds() >= FEED_TIME_SECONDS) {
                     stopFeeders();
-                    intake.setPower(STOP_SPEED);
                     shotsFinished++;
 
                     if (shotsFinished >= shotsWanted) {
@@ -827,7 +827,7 @@ public class FelixBlueFarSideAuto extends OpMode {
         double dx = BLUE_GOAL_X - pose.getX();
         double dy = BLUE_GOAL_Y - pose.getY();
 
-        return Math.atan2(dy, dx);
+        return Math.atan2(dy, dx)+5 ;
     }
 
 
