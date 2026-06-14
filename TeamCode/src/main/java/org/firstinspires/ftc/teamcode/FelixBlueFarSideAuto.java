@@ -556,8 +556,8 @@ public class FelixBlueFarSideAuto extends OpMode {
     }
 
     private void buildPaths() {
-        double blueGoalHeading1 = headingToBlueGoal(SHOOT_POSE1);
-        double blueGoalHeading2 = headingToBlueGoal(SHOOT_POSE2);
+        double blueGoalHeading1 = headingToBlueGoal1(SHOOT_POSE1);
+        double blueGoalHeading2 = headingToBlueGoal2(SHOOT_POSE2);
 
 
         Pose shootPose1FacingBlue =
@@ -715,12 +715,13 @@ public class FelixBlueFarSideAuto extends OpMode {
                  * Do not feed a ball until the flywheel has actually ramped up.
                  */
                 if (flywheelIsReady()) {
+                    intake.setPower(FULL_SPEED);
                     shooterState = ShooterState.FEED_BALL;
                 }
                 break;
 
             case FEED_BALL:
-                intake.setPower(FULL_SPEED);
+
                 leftFeeder.setPower(FULL_SPEED);
                 rightFeeder.setPower(FULL_SPEED);
 
@@ -823,9 +824,15 @@ public class FelixBlueFarSideAuto extends OpMode {
                 +1720.40744;
     }
 
-    private double headingToBlueGoal(Pose pose) {
-        double dx = BLUE_GOAL_X - pose.getX();
-        double dy = BLUE_GOAL_Y - pose.getY();
+    private double headingToBlueGoal1(Pose pose) {
+        double dx = BLUE_GOAL_X - SHOOT_POSE1.getX();
+        double dy = BLUE_GOAL_Y - SHOOT_POSE1.getY();
+
+        return Math.atan2(dy, dx) ;
+    }
+    private double headingToBlueGoal2(Pose pose) {
+        double dx = BLUE_GOAL_X - SHOOT_POSE2.getX();
+        double dy = BLUE_GOAL_Y - SHOOT_POSE2.getY();
 
         return Math.atan2(dy, dx) ;
     }
@@ -837,6 +844,7 @@ public class FelixBlueFarSideAuto extends OpMode {
                 BLUE_GOAL_Y - pose.getY()
         );
     }
+
 
     // --------------------------------------------------
     // Telemetry
@@ -853,7 +861,8 @@ public class FelixBlueFarSideAuto extends OpMode {
         telemetry.addData("Actual Velocity", "%.1f", launcher.getVelocity());
         telemetry.addData("Ready to Shoot", flywheelIsReady());
         telemetry.addData("Flywheel Timer", "%.2f", flywheelTimer.seconds());
-        telemetry.addData("Blue Heading", "%.1f deg", Math.toDegrees(headingToBlueGoal(pose)));
+        telemetry.addData("Blue Heading", "%.1f deg", Math.toDegrees(headingToBlueGoal1(pose)));
+        telemetry.addData("Blue Heading 2 ", "%.1f deg", Math.toDegrees(headingToBlueGoal2(pose)));
         telemetry.addData("Heading Error to 0", "%.1f deg", Math.toDegrees(wrapRadians(pose.getHeading())));
         telemetry.addData("Shots", "%d / %d", shotsFinished, shotsWanted);
         telemetry.update();
