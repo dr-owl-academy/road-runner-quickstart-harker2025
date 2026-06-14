@@ -827,7 +827,7 @@ public class FelixBlueFarSideAuto extends OpMode {
         double dx = BLUE_GOAL_X - pose.getX();
         double dy = BLUE_GOAL_Y - pose.getY();
 
-        return Math.atan2(dy, dx)+5 ;
+        return Math.atan2(dy, dx) ;
     }
 
 
