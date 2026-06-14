@@ -212,18 +212,14 @@ public class FelixBlueFarSideAuto extends OpMode {
 
                 keepFlywheelReady();
 
-                if (!follower.isBusy()) {
-
+                if (!follower.isBusy()){
                     beginShooting(PRELOAD_BALL_COUNT);
                     autoState = AutoState.SHOOT_STOP;
                 }
                 break;
 
             case SHOOT_STOP:
-
-
-
-                if (updateShooter()) {
+                if (updateShooter()) { //if shooting is done, the state will return true
                     stopFeeders();
                     intake.setPower(STOP_SPEED);
                     stopFlywheel();
