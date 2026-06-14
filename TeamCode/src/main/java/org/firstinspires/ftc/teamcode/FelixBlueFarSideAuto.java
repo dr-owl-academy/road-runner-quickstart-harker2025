@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.message.redux.StopOpMode;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -42,9 +43,9 @@ public class FelixBlueFarSideAuto extends OpMode {
 
     private static final Pose SHOOT_POSE2 = new Pose(42.11045125602347, 98.71230941704215, Math.toRadians(135));
 
-    private static final Pose BEFORE_INTAKE1 = new Pose(46.589073634204276, 34.151425178147285, Math.toRadians(180));
-    private static final Pose BEFORE_INTAKE2 = new Pose(46.98285948418695, 60.133869004506906, Math.toRadians(180));
-    private static final Pose BEFORE_INTAKE3 = new Pose(46.85879759151297, 83.78369042703972, Math.toRadians(180));
+    private static final Pose BEFORE_INTAKE1 = new Pose(46.589073634204276, 37.30321159296564, Math.toRadians(180));
+    private static final Pose BEFORE_INTAKE2 = new Pose(46.98285948418695, 60.73321471656735, Math.toRadians(180));
+    private static final Pose BEFORE_INTAKE3 = new Pose(46.85879759151297, 84.75809287816283, Math.toRadians(180));
     private static final Pose INTAKE_POSE1 = new Pose(23.926017053685545, 37.30321159296564, Math.toRadians(180));
     private static final Pose INTAKE_POSE2 = new Pose(23.403942154044213, 60.73321471656735, Math.toRadians(180));
     private static final Pose INTAKE_POSE3 = new Pose(23.547497741678697, 84.75809287816283, Math.toRadians(180));
@@ -57,7 +58,7 @@ public class FelixBlueFarSideAuto extends OpMode {
     private static final double STOP_SPEED = 0.0;
 
     private static final double FEED_TIME_SECONDS = 0.20;
-    private static final double TIME_BETWEEN_SHOTS_SECONDS = 1.00;
+    private static final double TIME_BETWEEN_SHOTS_SECONDS = 1.50;
 
     private static final int PRELOAD_BALL_COUNT = 2;
     private static final int INTAKED_BALL_COUNT = 2;
@@ -201,7 +202,7 @@ public class FelixBlueFarSideAuto extends OpMode {
             case START_PATH_TO_FIRST_SHOT:
                 setLauncherSpeedForPose(SHOOT_POSE1);
 
-                follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
+                follower.setMaxPower(NORMAL_PATH_POWER);
                 follower.followPath(pathToFirstShot);
 
                 autoState = AutoState.SHOOT_FIRST_SHOT;
@@ -220,7 +221,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
             case SHOOT_STOP:
 
-                keepFlywheelReady();
+
 
                 if (updateShooter()) {
                     stopFeeders();
@@ -257,6 +258,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
                 follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
                 follower.followPath(pathToIntake1);
+
 
 
                 autoState = AutoState.WAIT_FOR_INTAKE1_PATH;
@@ -495,7 +497,7 @@ public class FelixBlueFarSideAuto extends OpMode {
                      * Only now, after the robot has reached the shooting pose,
                      * spin up the flywheel for the second shooting sequence.
                      */
-                    setLauncherSpeedForPose(SHOOT_POSE2);
+                    setLauncherSpeedForPose(SHOOT_POSE2 );
 
                     beginShooting(INTAKED_BALL_COUNT);
                     autoState = AutoState.SHOOT_INTAKED_BALLS3;
@@ -579,7 +581,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
         pathToPreIntake1 = follower.pathBuilder()
                 .addPath(new BezierLine(shootPose1HeadingZero, BEFORE_INTAKE1))
-                .setLinearHeadingInterpolation(shootPose1FacingBlue.getHeading(), Math.toRadians(180))
+                .setLinearHeadingInterpolation(shootPose1FacingBlue.getHeading() , Math.toRadians(180))
                 .build();
 
         pathToIntake1 = follower.pathBuilder()
@@ -597,7 +599,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
         pathToPreIntake2 = follower.pathBuilder()
                 .addPath(new BezierLine(shootPose1HeadingZero, BEFORE_INTAKE2))
-                .setLinearHeadingInterpolation(shootPose1FacingBlue.getHeading(), Math.toRadians(180))
+                .setLinearHeadingInterpolation(shootPose1FacingBlue.getHeading() , Math.toRadians(180))
                 .build();
 
         pathToIntake2 = follower.pathBuilder()
@@ -701,7 +703,7 @@ public class FelixBlueFarSideAuto extends OpMode {
     }
 
     private boolean updateShooter() {
-        intake.setPower(FULL_SPEED);
+
 
         switch (shooterState) {
 
@@ -718,6 +720,7 @@ public class FelixBlueFarSideAuto extends OpMode {
                 break;
 
             case FEED_BALL:
+                intake.setPower(FULL_SPEED);
                 leftFeeder.setPower(FULL_SPEED);
                 rightFeeder.setPower(FULL_SPEED);
 
@@ -728,6 +731,7 @@ public class FelixBlueFarSideAuto extends OpMode {
             case WAIT_BETWEEN_BALLS:
                 if (shotTimer.seconds() >= FEED_TIME_SECONDS) {
                     stopFeeders();
+                    intake.setPower(STOP_SPEED);
                     shotsFinished++;
 
                     if (shotsFinished >= shotsWanted) {
@@ -740,7 +744,7 @@ public class FelixBlueFarSideAuto extends OpMode {
                 break;
 
             case IDLE:
-                if (flywheelIsReady()) {
+                if (shotTimer.seconds() >= TIME_BETWEEN_SHOTS_SECONDS) {
                     /*
                      * CHANGE:
                      * Reset flywheel timer before checking the next shot.
@@ -802,7 +806,6 @@ public class FelixBlueFarSideAuto extends OpMode {
         launcherTargetVelocity = velocityFromDistance(distance) + kOffset;
         launcher.setVelocity(launcherTargetVelocity);
     }
-
     private void keepFlywheelReady() {
         setLauncherSpeedForPose(follower.getPose());
     }
@@ -815,9 +818,9 @@ public class FelixBlueFarSideAuto extends OpMode {
         x = Math.max(18, x);
 
         return -0.000744119 * x * x * x
-                + 0.228351 * x * x
-                - 15.52643 * x
-                + 1716.40744;
+                +0.228351 * x * x
+                -15.52643 * x
+                +1716.40744;
     }
 
     private double headingToBlueGoal(Pose pose) {
@@ -863,5 +866,5 @@ public class FelixBlueFarSideAuto extends OpMode {
                 pose.getY(),
                 Math.toDegrees(pose.getHeading())
         );
-    }
+}
 }
