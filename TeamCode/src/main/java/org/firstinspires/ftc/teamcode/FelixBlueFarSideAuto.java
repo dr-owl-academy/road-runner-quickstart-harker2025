@@ -39,7 +39,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
     private static final Pose START_POSE = new Pose(47.05463182897862, 8.738717339667456, Math.toRadians(90));
 
-    private static final Pose SHOOT_POSE1 = new Pose(61.99294117647059, 13.859411764705877, Math.toRadians(110));
+    private static final Pose SHOOT_POSE1 = new Pose(61.9 ,13, Math.toRadians(110));
 
     private static final Pose SHOOT_POSE2 = new Pose(42.11045125602347, 98.71230941704215, Math.toRadians(135));
 
@@ -71,7 +71,7 @@ public class FelixBlueFarSideAuto extends OpMode {
      * If the robot waits too long, increase this number slightly.
      * If the robot still shoots too weakly, decrease this number.
      */
-    private static final double SHOOTER_READY_TOLERANCE = 10.0;
+    private static final double SHOOTER_READY_TOLERANCE = 20.0;
 
     /*
      * CHANGE:
