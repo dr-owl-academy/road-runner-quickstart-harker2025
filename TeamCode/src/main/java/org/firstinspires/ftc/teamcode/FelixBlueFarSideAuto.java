@@ -57,7 +57,7 @@ public class FelixBlueFarSideAuto extends OpMode {
     private static final double FULL_SPEED = 1.0;
     private static final double STOP_SPEED = 0.0;
 
-    private static final double FEED_TIME_SECONDS = 0.30;
+    private static final double FEED_TIME_SECONDS = 0.35;
     private static final double TIME_BETWEEN_SHOTS_SECONDS = 1.50;
 
     private static final int PRELOAD_BALL_COUNT = 2;
@@ -81,7 +81,7 @@ public class FelixBlueFarSideAuto extends OpMode {
      * If auto becomes too slow, try 0.50.
      * If shots are still weak, try 0.80 or 1.00.
      */
-    private static final double MIN_FLYWHEEL_SPIN_UP_SECONDS = 0.70;
+    private static final double MIN_FLYWHEEL_SPIN_UP_SECONDS = 0.80;
 
     //use this number to adjust flywheel speed
     private static final double kOffset = 0.0;
