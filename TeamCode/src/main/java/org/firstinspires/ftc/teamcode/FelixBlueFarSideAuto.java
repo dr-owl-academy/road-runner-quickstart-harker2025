@@ -57,7 +57,7 @@ public class FelixBlueFarSideAuto extends OpMode {
     private static final double FULL_SPEED = 1.0;
     private static final double STOP_SPEED = 0.0;
 
-    private static final double FEED_TIME_SECONDS = 0.20;
+    private static final double FEED_TIME_SECONDS = 0.30;
     private static final double TIME_BETWEEN_SHOTS_SECONDS = 1.50;
 
     private static final int PRELOAD_BALL_COUNT = 2;
@@ -820,7 +820,7 @@ public class FelixBlueFarSideAuto extends OpMode {
         return -0.000744119 * x * x * x
                 +0.228351 * x * x
                 -15.52643 * x
-                +1716.40744;
+                +1720.40744;
     }
 
     private double headingToBlueGoal(Pose pose) {
