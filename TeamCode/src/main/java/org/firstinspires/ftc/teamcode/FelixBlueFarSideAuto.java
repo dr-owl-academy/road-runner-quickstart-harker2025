@@ -39,7 +39,7 @@ public class FelixBlueFarSideAuto extends OpMode {
 
     private static final Pose START_POSE = new Pose(47.05463182897862, 8.738717339667456, Math.toRadians(90));
 
-    private static final Pose SHOOT_POSE1 = new Pose(61.9 ,13, Math.toRadians(110));
+    private static final Pose SHOOT_POSE1 = new Pose(58.968000558893394 ,17.052404638815133, Math.toRadians(110));
 
     private static final Pose SHOOT_POSE2 = new Pose(42.11045125602347, 98.71230941704215, Math.toRadians(135));
 
