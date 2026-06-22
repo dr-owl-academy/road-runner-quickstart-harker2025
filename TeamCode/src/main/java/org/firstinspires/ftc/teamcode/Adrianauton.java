@@ -38,11 +38,12 @@ public class Adrianauton extends OpMode {
     private static final double RED_GOAL_X = 130.0;
     private static final double RED_GOAL_Y = 130.0;
 
-    private static final Pose START_POSE = new Pose(70.0671342111722,71.23928077455048 , Math.toRadians(90));
+    private static final Pose START_POSE = new Pose(108.255,132.277 , Math.toRadians(90));
 
-    private static final Pose SHOOT_POSE = new Pose(70.0671342111722, 71.23928077455048, Math.toRadians(90));
+    private static final Pose SHOOT_POSE = new Pose(104.1452282, 102.7378976, Math.toRadians(45));
+    private static final Pose START_INTAKE_POSE = new Pose(105.05229056629747,81.95224211585366, Math.toRadians(0));
 
-    private static final Pose INTAKE_POSE = new Pose(113.66, 82.161, Math.toRadians(0));
+    private static final Pose INTAKE_POSE = new Pose(127.62830058001263,81.97030073323569 , Math.toRadians(0));
 
     // -----------------------------
     // Shooter constants
@@ -287,6 +288,7 @@ public class Adrianauton extends OpMode {
         }
 
         showTelemetry(msg);
+
     }
 
     @Override
@@ -322,17 +324,20 @@ public class Adrianauton extends OpMode {
     private void buildPaths() {
     telemetry.addData("Status","on path");
 
-        PathChain MainChain = follower.pathBuilder()
+        pathToFirstShot = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(70.067, 71.239,redGoalHeading),
-                                new Pose(46.019, 81.210,redGoalHeading)
+                                new Pose(START_POSE.getX(), START_POSE.getY(), START_POSE.getHeading()),
+                                new Pose(SHOOT_POSE.getX(), SHOOT_POSE.getY(),redGoalHeading)
                         )
                 )
+
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
+                .build();
+        pathToIntake = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(46.019, 81.210,redGoalHeading),
+                                new Pose(SHOOT_POSE.getX(), SHOOT_POSE.getY(),redGoalHeading),
                                 new Pose(21.563, 81.752,redGoalHeading)
                         )
                 )
