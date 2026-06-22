@@ -57,7 +57,7 @@ public class Adrianauton extends OpMode {
     private static final int PRELOAD_BALL_COUNT = 3;
     //hfgfhgfgfg
     private static final int INTAKED_BALL_COUNT = 3;
-
+    private double redGoalHeading;
 
     /*
      * CHANGE:
@@ -101,8 +101,10 @@ public class Adrianauton extends OpMode {
     // Paths
     // -----------------------------
     private PathChain pathToFirstShot;
+    private PathChain startPathToIntake;
     private PathChain pathToIntake;
     private PathChain pathBackToShot;
+
 
     // -----------------------------
     // State machine variables
@@ -150,6 +152,7 @@ public class Adrianauton extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(START_POSE);
+        double redGoalHeading = headingToRedGoal(SHOOT_POSE);
 
         buildPaths();
 
@@ -319,7 +322,6 @@ public class Adrianauton extends OpMode {
         stopFlywheel();
         intake.setPower(STOP_SPEED);
     }
-    double redGoalHeading = headingToRedGoal(SHOOT_POSE);
 
     private void buildPaths() {
     telemetry.addData("Status","on path");
@@ -332,46 +334,35 @@ public class Adrianauton extends OpMode {
                         )
                 )
 
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45))
                 .build();
+
+        startPathToIntake = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(SHOOT_POSE,START_INTAKE_POSE)
+
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
+                .build();
+
         pathToIntake = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(
-                                new Pose(SHOOT_POSE.getX(), SHOOT_POSE.getY(),redGoalHeading),
-                                new Pose(21.563, 81.752,redGoalHeading)
-                        )
+                        new BezierLine(START_INTAKE_POSE,INTAKE_POSE)
+
+
                 )
-                .setTangentHeadingInterpolation()
-                .addPath(
-                        new BezierCurve(
-                                new Pose(21.563, 81.752,redGoalHeading),
-                                new Pose(42.696, 74.811,redGoalHeading),
-                                new Pose(71.829, 69.869,redGoalHeading)
-                        )
-                )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(120))
-                .addPath(
-                        new BezierLine(
-                                new Pose(71.829, 69.869,redGoalHeading),
-                                new Pose(33.311, 58.809,redGoalHeading)
-                        )
-                )
-                .setTangentHeadingInterpolation()
-                .addPath(
-                        new BezierLine(
-                                new Pose(33.311, 58.809),
-                                new Pose(21.632, 58.664)
-                        )
-                )
-                .setTangentHeadingInterpolation()
-                .addPath(
-                        new BezierLine(
-                                new Pose(21.632, 58.664),
-                                new Pose(70.736, 71.021)
-                        )
-                )
-                .setTangentHeadingInterpolation()
+                .setConstantHeadingInterpolation(0)
                 .build();
+
+        pathBackToShot = follower.pathBuilder()
+
+                .addPath(
+                        new BezierLine(INTAKE_POSE,SHOOT_POSE)
+
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                .build();
+
 
 
         Pose shootPoseFacingRed =
