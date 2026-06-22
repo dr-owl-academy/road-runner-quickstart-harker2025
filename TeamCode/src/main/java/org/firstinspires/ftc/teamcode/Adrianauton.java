@@ -224,7 +224,7 @@ public class Adrianauton extends OpMode {
                 msg = "intake";
 
                 follower.setMaxPower(SLOW_INTAKE_PATH_POWER);
-                follower.followPath(pathToIntake);
+                follower.followPath(startPathToIntake);
 
                 autoState = AutoState.WAIT_FOR_INTAKE_PATH;
                 break;
