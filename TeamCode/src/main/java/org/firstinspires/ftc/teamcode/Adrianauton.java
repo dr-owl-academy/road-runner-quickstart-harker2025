@@ -187,14 +187,14 @@ public class Adrianauton extends OpMode {
                 msg = "path to shot 1";
                 break;
 
-            /*case WAIT_FOR_FIRST_PATH:
+            case WAIT_FOR_FIRST_PATH:
                 keepFlywheelReady();
 
                 if (!follower.isBusy()) {
                     beginShooting(PRELOAD_BALL_COUNT);
                     autoState = AutoState.SHOOT_PRELOADS;
                 }
-                break;*/
+                break;
 
             case SHOOT_PRELOADS:
                 keepFlywheelReady();
@@ -329,15 +329,10 @@ public class Adrianauton extends OpMode {
         pathToFirstShot = follower.pathBuilder()
                 .addPath(
                         new BezierLine(START_POSE,SHOOT_POSE)
-
-
                 )
-
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45))
                 .build();
-    autoState = AutoState.SHOOT_PRELOADS;
-    shooterState = ShooterState.FEED_BALL;
-    updateShooter();
+
 
 
         startPathToIntake = follower.pathBuilder()
@@ -347,7 +342,7 @@ public class Adrianauton extends OpMode {
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                 .build();
-        autoState = AutoState.START_INTAKE_PATH;
+
         pathToIntake = follower.pathBuilder()
                 .addPath(
                         new BezierLine(START_INTAKE_POSE,INTAKE_POSE)
