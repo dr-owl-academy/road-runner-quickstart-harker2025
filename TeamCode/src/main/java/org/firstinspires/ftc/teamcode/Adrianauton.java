@@ -54,9 +54,9 @@ public class Adrianauton extends OpMode {
     private static final double FEED_TIME_SECONDS = 0.20;
     private static final double TIME_BETWEEN_SHOTS_SECONDS = 0.35;
 
-    private static final int PRELOAD_BALL_COUNT = 3;
-    //hfgfhgfgfg
-    private static final int INTAKED_BALL_COUNT = 3;
+    private static final int PRELOAD_BALL_COUNT = 2;
+
+    private static final int INTAKED_BALL_COUNT = 2;
     private double redGoalHeading;
 
     /*
@@ -328,14 +328,17 @@ public class Adrianauton extends OpMode {
 
         pathToFirstShot = follower.pathBuilder()
                 .addPath(
-                        new BezierLine(
-                                new Pose(START_POSE.getX(), START_POSE.getY(), START_POSE.getHeading()),
-                                new Pose(SHOOT_POSE.getX(), SHOOT_POSE.getY(),redGoalHeading)
-                        )
+                        new BezierLine(START_POSE,SHOOT_POSE)
+
+
                 )
 
                 .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45))
                 .build();
+    autoState = AutoState.SHOOT_PRELOADS;
+    shooterState = ShooterState.FEED_BALL;
+    updateShooter();
+
 
         startPathToIntake = follower.pathBuilder()
                 .addPath(
@@ -344,7 +347,7 @@ public class Adrianauton extends OpMode {
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
                 .build();
-
+        autoState = AutoState.START_INTAKE_PATH;
         pathToIntake = follower.pathBuilder()
                 .addPath(
                         new BezierLine(START_INTAKE_POSE,INTAKE_POSE)
@@ -362,6 +365,7 @@ public class Adrianauton extends OpMode {
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
                 .build();
+        autoState = AutoState.SHOOT_INTAKED_BALLS;
 
 
 
